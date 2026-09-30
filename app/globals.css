@@ -79,6 +79,12 @@ button { color: inherit; }
 .view-switch { position: absolute; z-index: 5; top: 19px; right: 20px; background: rgba(251,251,248,.92); border-radius: 9px; padding: 3px; display: flex; box-shadow: 0 7px 24px rgba(45,45,39,.08); }
 .view-switch button { border: 0; padding: 7px 11px; border-radius: 7px; background: transparent; font-size: 10px; color: #888; display: flex; gap: 5px; align-items: center; cursor: pointer; }
 .view-switch button.active { background: var(--ink); color: white; }
+.reference-controls { position: absolute; z-index: 5; top: 61px; right: 20px; width: 178px; padding: 7px; display: flex; flex-direction: column; gap: 8px; background: rgba(251,251,248,.92); backdrop-filter: blur(12px); border: 1px solid rgba(255,255,255,.72); border-radius: 9px; box-shadow: 0 7px 24px rgba(45,45,39,.08); }
+.reference-controls > button { height: 30px; border: 1px solid var(--line); border-radius: 7px; background: white; color: #6f7169; display: flex; align-items: center; justify-content: center; gap: 6px; font-size: 9px; font-weight: 700; cursor: pointer; }
+.reference-controls > button.active { color: var(--accent-dark); border-color: #d7b09f; background: #fbf0eb; }
+.reference-controls label { display: grid; grid-template-columns: 42px 1fr; align-items: center; gap: 7px; padding: 0 3px 3px; }
+.reference-controls label span { color: #85877f; font-size: 8px; }
+.reference-controls input { width: 100%; accent-color: var(--accent); cursor: pointer; }
 .orientation { position: absolute; right: 23px; bottom: 47px; width: 42px; height: 42px; border-radius: 50%; background: rgba(255,255,255,.76); display: grid; place-items: center; color: #6c6d66; font: 700 9px/1 var(--font-geist-mono); box-shadow: 0 4px 15px rgba(0,0,0,.07); }
 .orientation div { position: absolute; top: 9px; width: 1px; height: 10px; background: var(--accent); }
 .canvas-help { position: absolute; left: 50%; bottom: 18px; transform: translateX(-50%); background: rgba(39,40,37,.75); color: white; border-radius: 99px; padding: 8px 12px; display: flex; gap: 6px; align-items: center; font-size: 9px; backdrop-filter: blur(8px); white-space: nowrap; }
@@ -154,5 +160,6 @@ button { color: inherit; }
   .room-bar { left: 10px; top: 10px; }
   .room-bar .eyebrow, .room-bar > span:not(.draft-badge) { display: none; }
   .view-switch { right: 10px; top: 10px; }
+  .reference-controls { right: 10px; top: 52px; width: 154px; }
   .room-legend { display: none; }
 }

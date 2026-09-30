@@ -1,7 +1,7 @@
 "use client";
 
 import { Canvas, useThree } from "@react-three/fiber";
-import { ContactShadows, Environment, Grid, Html, OrbitControls, RoundedBox } from "@react-three/drei";
+import { ContactShadows, Environment, Grid, Html, OrbitControls, RoundedBox, useTexture } from "@react-three/drei";
 import {
   Armchair,
   Box,
@@ -174,6 +174,22 @@ function CameraRig({ view }: { view: "3d" | "2d" }) {
   return null;
 }
 
+function ReferenceOverlay({ opacity }: { opacity: number }) {
+  const texture = useTexture("/floorplan-reference.jpeg");
+  useEffect(() => {
+    texture.colorSpace = THREE.SRGBColorSpace;
+    texture.anisotropy = 8;
+    texture.needsUpdate = true;
+  }, [texture]);
+
+  return (
+    <mesh rotation-x={-Math.PI / 2} position={[-1.42, .018, -.08]} renderOrder={3}>
+      <planeGeometry args={[14.55, 11.12]} />
+      <meshBasicMaterial map={texture} transparent opacity={opacity} depthWrite={false} toneMapped={false} />
+    </mesh>
+  );
+}
+
 function Door({ x, z, rotation = 0 }: { x: number; z: number; rotation?: number }) {
   return (
     <group position={[planX(x), 1, planZ(z)]} rotation-y={rotation}>
@@ -253,7 +269,7 @@ function FurnitureModel({ item, selected, onSelect }: { item: FurnitureItem; sel
   );
 }
 
-function ApartmentScene({ finish, view, items, selectedId, onSelect }: { finish: FinishKey; view: "3d" | "2d"; items: FurnitureItem[]; selectedId: string | null; onSelect: (id: string | null) => void }) {
+function ApartmentScene({ finish, view, items, selectedId, onSelect, showReference, referenceOpacity }: { finish: FinishKey; view: "3d" | "2d"; items: FurnitureItem[]; selectedId: string | null; onSelect: (id: string | null) => void; showReference: boolean; referenceOpacity: number }) {
   const wall = FINISHES[finish].color;
   return (
     <>
@@ -261,6 +277,7 @@ function ApartmentScene({ finish, view, items, selectedId, onSelect }: { finish:
       <ambientLight intensity={1.5} />
       <directionalLight position={[-5, 9, 5]} intensity={2.6} castShadow shadow-mapSize={[2048, 2048]} />
       <CameraRig view={view} />
+      {view === "2d" && showReference && <ReferenceOverlay opacity={referenceOpacity} />}
       <group onClick={() => onSelect(null)}>
         {ROOMS.map((room, index) => <RoomFloor key={`${room.name}-${index}`} room={room} showLabel={view === "2d"} />)}
         <Grid args={[12.6, 11]} cellSize={.1} cellThickness={.12} cellColor="#9b8e80" sectionSize={1} sectionColor="#72675d" fadeDistance={18} fadeStrength={2} position={[0, .006, 0]} />
@@ -292,6 +309,8 @@ export function Studio() {
   const [selectedId, setSelectedId] = useState<string | null>("dining");
   const [category, setCategory] = useState("가구");
   const [saved, setSaved] = useState(false);
+  const [showReference, setShowReference] = useState(false);
+  const [referenceOpacity, setReferenceOpacity] = useState(.52);
   const selected = useMemo(() => items.find((item) => item.id === selectedId) ?? null, [items, selectedId]);
 
   useEffect(() => {
@@ -340,8 +359,12 @@ export function Studio() {
         <section className="canvas-area">
           <div className="room-bar"><span className="eyebrow">DRAWING MODEL</span><strong>109㎡ 기본형</strong><span>전용 76.33㎡</span><span className="draft-badge">현관 왼쪽 · 원본 방향</span></div>
           <div className="view-switch"><button className={view === "2d" ? "active" : ""} onClick={() => setView("2d")}><Grid2X2 size={15} /> 2D</button><button className={view === "3d" ? "active" : ""} onClick={() => setView("3d")}><Layers3 size={15} /> 3D</button></div>
+          {view === "2d" && <div className="reference-controls">
+            <button className={showReference ? "active" : ""} aria-pressed={showReference} onClick={() => setShowReference((current) => !current)}><Eye size={14} /> 도면 대조</button>
+            {showReference && <label><span>투명도</span><input aria-label="도면 투명도" type="range" min="0.15" max="0.85" step="0.05" value={referenceOpacity} onChange={(event) => setReferenceOpacity(Number(event.target.value))} /></label>}
+          </div>}
           <Canvas shadows dpr={[1, 1.65]} camera={{ position: [11.6, 10.8, 13.2], fov: 38 }}>
-            <Suspense fallback={null}><ApartmentScene finish={finish} view={view} items={items} selectedId={selectedId} onSelect={setSelectedId} /></Suspense>
+            <Suspense fallback={null}><ApartmentScene finish={finish} view={view} items={items} selectedId={selectedId} onSelect={setSelectedId} showReference={showReference} referenceOpacity={referenceOpacity} /></Suspense>
           </Canvas>
           <div className="orientation"><span>N</span><div /></div>
           <div className="canvas-help"><Move3D size={15} /> 드래그로 둘러보고, 스크롤로 확대하세요</div>
