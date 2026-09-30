@@ -84,17 +84,15 @@ type RoomSpec = { name: string; x: number; z: number; w: number; d: number; colo
 type WallSpec = { x: number; z: number; w: number; d: number; height?: number; y?: number; material?: "wall" | "glass" };
 
 const ROOMS: RoomSpec[] = [
-  { name: "침실 9.52", x: 1.45, z: 6.71, w: 2.9, d: 3.53, color: "#ddd1bc" },
+  { name: "침실 9.52 · 확장", x: 1.45, z: 7.51, w: 2.9, d: 5.13, color: "#ddd1bc" },
   { name: "거실 27.47", x: 5.25, z: 7.25, w: 4.7, d: 5.64, color: "#b89973" },
-  { name: "안방 14.71", x: 9.65, z: 7.86, w: 4.1, d: 3.83, color: "#d9cdb8" },
+  { name: "안방 14.71 · 확장", x: 9.65, z: 8, w: 4.1, d: 4.13, color: "#d9cdb8" },
   { name: "침실 9.45", x: 9.95, z: 2.97, w: 3.5, d: 2.93, color: "#ded3bd" },
   { name: "주방/식당 9.49", x: 6.5, z: 2.97, w: 3.4, d: 2.93, color: "#aa916b" },
   { name: "공용욕실", x: 3.85, z: 3.27, w: 1.9, d: 2.32, color: "#8d918e" },
   { name: "안방욕실", x: 10.4, z: 5.18, w: 2.6, d: 1.5, color: "#858a87" },
   { name: "현관", x: 1.45, z: 4.19, w: 2.9, d: 1.51, color: "#c8c7bf" },
   { name: "복도", x: 6.95, z: 5.18, w: 4.3, d: 1.5, color: "#b89973" },
-  { name: "침실 발코니", x: 1.45, z: 9.27, w: 2.9, d: 1.6, color: "#d8d4ca" },
-  { name: "안방 발코니", x: 9.65, z: 9.92, w: 4.1, d: .3, color: "#d8d4ca" },
   { name: "다용도실", x: 3.85, z: 1.43, w: 1.9, d: 1.35, color: "#d8d4ca" },
   { name: "주방 발코니", x: 6.5, z: .75, w: 3.4, d: 1.5, color: "#d8d4ca" },
   { name: "침실 발코니", x: 9.95, z: .75, w: 3.5, d: 1.5, color: "#d8d4ca" },
@@ -105,8 +103,8 @@ const ROOMS: RoomSpec[] = [
 const WALLS: WallSpec[] = [
   // 외곽선과 현관의 꺾인 형태
   { x: 0, z: 7.5, w: .16, d: 5.14 },
-  { x: 1.45, z: 3.43, w: 1.95, d: .16 },
-  { x: 2.82, z: 3.43, w: .16, d: .16 },
+  { x: .65, z: 3.43, w: 1.3, d: .16 },
+  { x: 2.55, z: 3.43, w: .7, d: .16 },
   { x: 2.9, z: 1.43, w: .16, d: 1.35 },
   { x: 3.85, z: .75, w: 1.9, d: .16 },
   { x: 4.8, z: .38, w: .16, d: .76 },
@@ -115,8 +113,7 @@ const WALLS: WallSpec[] = [
 
   // 현관, 공용욕실, 다용도실
   { x: 1.45, z: 4.94, w: 2.9, d: .14 },
-  { x: 2.9, z: 3.67, w: .14, d: .48 },
-  { x: 2.9, z: 4.82, w: .14, d: .24 },
+  { x: 2.9, z: 4.94, w: .28, d: .28 },
   { x: 3.85, z: 2.1, w: 1.9, d: .14 },
   { x: 2.9, z: 2.77, w: .14, d: 1.34 },
   { x: 4.8, z: 2.97, w: .14, d: 2.94 },
@@ -135,7 +132,6 @@ const WALLS: WallSpec[] = [
   { x: 10.88, z: 5.93, w: 1.64, d: .14 },
 
   // 침실 9.52, 거실, 안방 사이 벽 — 각 방문 폭만 비움
-  { x: 2.9, z: 5.04, w: .14, d: .2 },
   { x: 2.9, z: 7.24, w: .14, d: 2.47 },
   { x: 7.6, z: 6, w: .14, d: .12 },
   { x: 7.6, z: 8.34, w: .14, d: 2.87 },
@@ -143,8 +139,6 @@ const WALLS: WallSpec[] = [
   // 발코니 칸막이. 거실은 확장형이므로 중간 벽을 두지 않는다.
   { x: 2.9, z: 9.27, w: .14, d: 1.6 },
   { x: 7.6, z: 9.92, w: .14, d: .3 },
-  { x: 1.45, z: 8.47, w: 2.9, d: .1, height: .92, y: .46, material: "glass" },
-  { x: 9.65, z: 9.77, w: 4.1, d: .1, height: .92, y: .46, material: "glass" },
   { x: 6.5, z: 1.5, w: 3.4, d: .1, height: .92, y: .46, material: "glass" },
   { x: 9.95, z: 1.5, w: 3.5, d: .1, height: .92, y: .46, material: "glass" },
   { x: 1.45, z: 10.07, w: 2.9, d: .12, height: 1.05, y: .53, material: "glass" },
@@ -190,17 +184,32 @@ function ReferenceOverlay({ opacity }: { opacity: number }) {
   );
 }
 
-function Door({ x, z, rotation = 0 }: { x: number; z: number; rotation?: number }) {
+function Door({ x, z, width, rotation = 0 }: { x: number; z: number; width: number; rotation?: number }) {
   return (
-    <group position={[planX(x), 1, planZ(z)]} rotation-y={rotation}>
-      <mesh castShadow position={[.36, 0, 0]}>
-        <boxGeometry args={[.76, 2, .045]} />
+    <group position={[planX(x), 1.02, planZ(z)]} rotation-y={rotation}>
+      <mesh castShadow position={[width / 2, 0, 0]}>
+        <boxGeometry args={[width, 2.04, .045]} />
         <meshStandardMaterial color="#9d7655" roughness={.72} />
       </mesh>
-      <mesh position={[.7, 0, .038]}>
+      <mesh position={[width - .08, 0, .038]}>
         <sphereGeometry args={[.035, 10, 10]} />
         <meshStandardMaterial color="#6f6557" metalness={.65} roughness={.25} />
       </mesh>
+    </group>
+  );
+}
+
+function DoorOpening({ x, z, axis, width, rotation, wallColor }: { x: number; z: number; axis: "horizontal" | "vertical"; width: number; rotation: number; wallColor: string }) {
+  const headerX = axis === "horizontal" ? x + width / 2 : x;
+  const headerZ = axis === "vertical" ? z + width / 2 : z;
+  return (
+    <group>
+      <Wall
+        position={[planX(headerX), 2.17, planZ(headerZ)]}
+        size={axis === "horizontal" ? [width, .26, .14] : [.14, .26, width]}
+        color={wallColor}
+      />
+      <Door x={x} z={z} width={width - .04} rotation={rotation} />
     </group>
   );
 }
@@ -286,13 +295,12 @@ function ApartmentScene({ finish, view, items, selectedId, onSelect, showReferen
           return <Wall key={index} position={[planX(segment.x), segment.y ?? height / 2, planZ(segment.z)]} size={[segment.w, height, segment.d]} color={segment.material === "glass" ? "#b9d1d3" : wall} />;
         })}
       </group>
-      <Door x={1.95} z={3.43} rotation={-Math.PI / 2.8} />
-      <Door x={2.9} z={3.95} rotation={Math.PI / 2 + Math.PI / 2.8} />
-      <Door x={2.9} z={5.14} rotation={Math.PI / 2 + Math.PI / 2.8} />
-      <Door x={3.16} z={4.43} rotation={Math.PI / 2.8} />
-      <Door x={8.46} z={4.43} rotation={-Math.PI / 2.8} />
-      <Door x={7.6} z={6.05} rotation={Math.PI / 2 + Math.PI / 2.8} />
-      <Door x={9.26} z={5.93} rotation={Math.PI / 2.8} />
+      <DoorOpening x={1.3} z={3.43} axis="horizontal" width={.9} rotation={-Math.PI / 2.8} wallColor={wall} />
+      <DoorOpening x={2.9} z={5.08} axis="vertical" width={.92} rotation={Math.PI / 2 + Math.PI / 2.8} wallColor={wall} />
+      <DoorOpening x={3.16} z={4.43} axis="horizontal" width={.76} rotation={Math.PI / 2.8} wallColor={wall} />
+      <DoorOpening x={8.46} z={4.43} axis="horizontal" width={.74} rotation={-Math.PI / 2.8} wallColor={wall} />
+      <DoorOpening x={7.6} z={6.06} axis="vertical" width={.84} rotation={Math.PI / 2 + Math.PI / 2.8} wallColor={wall} />
+      <DoorOpening x={9.26} z={5.93} axis="horizontal" width={.8} rotation={Math.PI / 2.8} wallColor={wall} />
       <MasterBathFixtures />
       {items.map((item) => <FurnitureModel key={item.id} item={item} selected={selectedId === item.id} onSelect={() => onSelect(item.id)} />)}
       <ContactShadows opacity={.28} scale={16} blur={2.3} far={4} />
@@ -357,7 +365,7 @@ export function Studio() {
         </aside>
 
         <section className="canvas-area">
-          <div className="room-bar"><span className="eyebrow">DRAWING MODEL</span><strong>109㎡ 기본형</strong><span>전용 76.33㎡</span><span className="draft-badge">현관 왼쪽 · 원본 방향</span></div>
+          <div className="room-bar"><span className="eyebrow">DRAWING MODEL</span><strong>109㎡ 기본형</strong><span>전용 76.33㎡</span><span className="draft-badge">거실·안방·좌측방 확장안</span></div>
           <div className="view-switch"><button className={view === "2d" ? "active" : ""} onClick={() => setView("2d")}><Grid2X2 size={15} /> 2D</button><button className={view === "3d" ? "active" : ""} onClick={() => setView("3d")}><Layers3 size={15} /> 3D</button></div>
           {view === "2d" && <div className="reference-controls">
             <button className={showReference ? "active" : ""} aria-pressed={showReference} onClick={() => setShowReference((current) => !current)}><Eye size={14} /> 도면 대조</button>
@@ -379,7 +387,7 @@ export function Studio() {
             <div className="property-section"><div className="property-heading"><span>배치 상태</span></div><div className="placement-ok"><span>✓</span><div><strong>배치 가능한 위치</strong><small>현재 다른 가구와 겹치지 않아요</small></div></div></div>
             <div className="property-section surface"><div className="property-heading"><span>소재</span></div><div className="material-chip"><span style={{background:selected.color}} /><div><strong>기존 제품 마감</strong><small>보유 가구 · 변경 없음</small></div></div></div>
           </> : <div className="empty-selection"><div><Move3D size={24} /></div><h2>가구를 선택해보세요</h2><p>크기와 위치를 확인하고<br/>정확하게 배치할 수 있어요.</p></div>}
-          <div className="plan-facts"><span className="eyebrow">DRAWING FACTS</span><ul><li><span>01</span>현관 왼쪽 · 원본 도면 방향</li><li><span>02</span>거실 4,700 · 전면 발코니 1,600</li><li><span>03</span>안방 욕실은 변기·세면대 구성</li></ul></div>
+          <div className="plan-facts"><span className="eyebrow">DRAWING FACTS</span><ul><li><span>01</span>현관 왼쪽 · 원본 도면 방향</li><li><span>02</span>거실·안방·좌측방 발코니 확장</li><li><span>03</span>안방 욕실은 변기·세면대 구성</li></ul></div>
         </aside>
       </section>
     </main>
