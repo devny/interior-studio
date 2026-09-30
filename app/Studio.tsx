@@ -65,7 +65,8 @@ const INITIAL_ITEMS: FurnitureItem[] = [
   { id: "living-fan", name: "루씨에어 Radar3 실링팬", room: "거실", kind: "fan", size: [1.32, .24, 1.32], position: [-.7, 2.02, 2.75], rotation: 0, color: "#efe9de", fixed: true },
 
   // 안방 — 라메리트 몰튼 세트와 신규 붙박이장
-  { id: "master-bed", name: "라메리트 몰튼 침대 A LK", room: "안방", kind: "bed", size: [1.8, 1, 2.28], position: [3.65, .5, 3.85], rotation: 0, color: "#9c7658" },
+  // 확장창을 막지 않도록 침대 헤드가 거실측 내벽을 향한다.
+  { id: "master-bed", name: "라메리트 몰튼 침대 A LK", room: "안방", kind: "bed", size: [1.8, 1, 2.28], position: [3.02, .5, 3.68], rotation: -Math.PI / 2, color: "#9c7658" },
   { id: "master-vanity", name: "몰튼 화장대 + 거울", room: "안방", kind: "cabinet", size: [1.2, .85, .4], position: [3.65, .425, .82], rotation: 0, color: "#a77d5d" },
   { id: "master-chest", name: "몰튼 와이드체스트", room: "안방", kind: "cabinet", size: [1.2, .75, .45], position: [4.95, .375, .82], rotation: 0, color: "#9f7556" },
   { id: "master-wardrobe", name: "무광 크림 붙박이장", room: "안방", kind: "cabinet", size: [2.25, 2.2, .6], position: [5.48, 1.1, 2.2], rotation: Math.PI / 2, color: "#dedbd1", fixed: true },
@@ -73,8 +74,9 @@ const INITIAL_ITEMS: FurnitureItem[] = [
   { id: "master-fan", name: "안방 실링팬", room: "안방", kind: "fan", size: [1.05, .2, 1.05], position: [3.75, 2.04, 2.35], rotation: 0, color: "#eee7dc", fixed: true },
 
   // 아이방(침실3)
-  { id: "child-bed", name: "안데르센 올리버 60cm 하이가드 SS", room: "아이방", kind: "daybed", size: [1.2, .96, 2.12], position: [4.7, .48, -2.55], rotation: 0, color: "#b58a64" },
-  { id: "child-shelf", name: "일룸 에디키즈 슬라이딩 3단", room: "아이방", kind: "shelf", size: [1.19, 1.0545, .392], position: [5.54, .527, -3.2], rotation: Math.PI / 2, color: "#d8d6ce" },
+  { id: "child-bed", name: "안데르센 올리버 60cm 하이가드 SS", room: "아이방", kind: "daybed", size: [1.2, .96, 2.12], position: [4.72, .48, -2.53], rotation: 0, color: "#b58a64" },
+  // 발코니창과 방문 사이 통로를 비우고 주방측 내벽에 낮은 수납장을 둔다.
+  { id: "child-shelf", name: "일룸 에디키즈 슬라이딩 3단", room: "아이방", kind: "shelf", size: [1.19, 1.0545, .392], position: [2.6, .527, -3.18], rotation: Math.PI / 2, color: "#d8d6ce" },
   { id: "child-ac", name: "아이방 시스템에어컨", room: "아이방", kind: "ceiling", size: [.75, .05, .34], position: [4.15, 2.25, -3.55], rotation: 0, color: "#f0f0eb", fixed: true },
 
   // 작업방(침실2) — 두 개의 1800 책상을 ㄱ자로 분산
@@ -82,17 +84,20 @@ const INITIAL_ITEMS: FurnitureItem[] = [
   { id: "office-desk-b", name: "우피아 모션데스크 1800 B", room: "부부 작업방", kind: "desk", size: [1.8, .74, .75], position: [-5.32, .37, 3.15], rotation: Math.PI / 2, color: "#c3aa8b" },
   { id: "office-pc-a", name: "데스크탑 컴퓨터 A", room: "부부 작업방", kind: "appliance", size: [.25, .48, .48], position: [-4.28, .62, .85], rotation: 0, color: "#303433", integrated: true },
   { id: "office-pc-b", name: "데스크탑 컴퓨터 B", room: "부부 작업방", kind: "appliance", size: [.25, .48, .48], position: [-5.3, .62, 3.78], rotation: Math.PI / 2, color: "#303433", integrated: true },
-  { id: "office-shelf-a", name: "데스커 800 오픈형 철제책장 A", room: "부부 작업방", kind: "shelf", size: [.8, 1.061, .32], position: [-3.48, .531, 5.28], rotation: 0, color: "#e7e7e1" },
-  { id: "office-shelf-b", name: "데스커 800 오픈형 철제책장 B", room: "부부 작업방", kind: "shelf", size: [.8, 1.061, .32], position: [-4.38, .531, 5.28], rotation: 0, color: "#e7e7e1" },
+  // 확장창 앞을 비우고 두 책장을 거실측 내벽에 나란히 배치한다.
+  { id: "office-shelf-a", name: "데스커 800 오픈형 철제책장 A", room: "부부 작업방", kind: "shelf", size: [.8, 1.061, .32], position: [-3.18, .531, 3.42], rotation: Math.PI / 2, color: "#e7e7e1" },
+  { id: "office-shelf-b", name: "데스커 800 오픈형 철제책장 B", room: "부부 작업방", kind: "shelf", size: [.8, 1.061, .32], position: [-3.18, .531, 4.34], rotation: Math.PI / 2, color: "#e7e7e1" },
   { id: "office-ac", name: "작업방 시스템에어컨", room: "부부 작업방", kind: "ceiling", size: [.75, .05, .34], position: [-4.35, 2.25, 4.15], rotation: 0, color: "#f0f0eb", fixed: true },
 
   // 주방 — 식탁 없음, 보유 가전과 교체 예정 냉장고장
   { id: "island", name: "조리·수납 아일랜드", room: "주방", kind: "island", size: [2.35, .9, .7], position: [.55, .45, -2.15], rotation: 0, color: "#d4cfc3", fixed: true },
-  { id: "fridge", name: "키친핏 냉장고", room: "주방", kind: "appliance", size: [.912, 1.853, .697], position: [1.72, .9265, -3.55], rotation: 0, color: "#d6d7d2", fixed: true },
-  { id: "kimchi-fridge", name: "키친핏 김치냉장고", room: "주방", kind: "appliance", size: [.595, 1.853, .688], position: [.88, .9265, -3.55], rotation: 0, color: "#c9cbc8", fixed: true },
-  { id: "dishwasher", name: "밀레 식기세척기", room: "주방", kind: "appliance", size: [.598, .805, .57], position: [-.28, .4025, -2.15], rotation: 0, color: "#c8c9c6", fixed: true, integrated: true },
-  { id: "induction", name: "디트리쉬 DPI7686GP 인덕션", room: "주방", kind: "appliance", size: [.65, .04, .515], position: [.58, .93, -2.15], rotation: 0, color: "#252726", fixed: true, integrated: true },
-  { id: "wine-cellar", name: "LG 미니와인셀러 W087B", room: "주방", kind: "appliance", size: [.282, .534, .497], position: [-.73, .267, -2.15], rotation: 0, color: "#393b39", fixed: true, integrated: true },
+  // 북측 발코니 출입 폭(좌측)을 비우고 우측 1.6m 벽체 안에 냉장고장을 맞춘다.
+  { id: "fridge", name: "키친핏 냉장고", room: "주방", kind: "appliance", size: [.912, 1.853, .697], position: [1.75, .9265, -3.56], rotation: 0, color: "#d6d7d2", fixed: true },
+  { id: "kimchi-fridge", name: "키친핏 김치냉장고", room: "주방", kind: "appliance", size: [.595, 1.853, .688], position: [.96, .9265, -3.56], rotation: 0, color: "#c9cbc8", fixed: true },
+  // 아일랜드는 왼쪽부터 와인셀러·싱크/식세기·조리대로 구획한다.
+  { id: "dishwasher", name: "밀레 식기세척기", room: "주방", kind: "appliance", size: [.598, .805, .57], position: [0, .4025, -2.15], rotation: 0, color: "#c8c9c6", fixed: true, integrated: true },
+  { id: "induction", name: "디트리쉬 DPI7686GP 인덕션", room: "주방", kind: "appliance", size: [.65, .04, .515], position: [.72, .93, -2.15], rotation: 0, color: "#252726", fixed: true, integrated: true },
+  { id: "wine-cellar", name: "LG 미니와인셀러 W087B", room: "주방", kind: "appliance", size: [.282, .534, .497], position: [-.46, .267, -2.15], rotation: 0, color: "#393b39", fixed: true, integrated: true },
   { id: "bath1-vent", name: "힘펠 휴젠뜨3", room: "공용욕실", kind: "ceiling", size: [.45, .055, .45], position: [-2.1, 2.25, -3.25], rotation: 0, color: "#e6e5df", fixed: true },
   { id: "bath2-vent", name: "힘펠 휴젠뜨3", room: "안방욕실", kind: "ceiling", size: [.45, .055, .45], position: [4.85, 2.25, -.25], rotation: 0, color: "#e6e5df", fixed: true },
 
@@ -102,19 +107,19 @@ const INITIAL_ITEMS: FurnitureItem[] = [
   { id: "entry-light", name: "음각 선반 간접조명", room: "현관", kind: "light", size: [.55, .06, .12], position: [-3.28, 1.35, -.35], rotation: Math.PI / 2, color: "#f0d6a2", fixed: true },
 ];
 
-const STORAGE_KEY = "sanghyeon-studio-v6-circulation-layout";
+const STORAGE_KEY = "sanghyeon-studio-v7-kitchen-bedroom-layout";
 
 const CATALOG = [
   { id: "jacomo-sofa", category: "가구", icon: Sofa, title: "자코모 휘몰라 네이비 소파", meta: "3150 × 1000 × 900", color: "#344654", kind: "sofa" as const, size: [3.15, .9, 1] as [number, number, number], room: "거실", position: [-.6, .45, 2.35] as [number, number, number] },
   { id: "ramerit-table", category: "가구", icon: SquareStack, title: "라메리트 페닉스 타원 식탁", meta: "1800 × 950 × 750", color: "#a7754b", kind: "table" as const, size: [1.8, .75, .95] as [number, number, number], room: "거실 확장부", position: [-.6, .375, 4.7] as [number, number, number] },
-  { id: "ramerit-bed", category: "가구", icon: Box, title: "라메리트 몰튼 침대 A LK", meta: "1800 × 2280 × 1000", color: "#9c7658", kind: "bed" as const, size: [1.8, 1, 2.28] as [number, number, number], room: "안방", position: [3.65, .5, 3.85] as [number, number, number] },
+  { id: "ramerit-bed", category: "가구", icon: Box, title: "라메리트 몰튼 침대 A LK", meta: "1800 × 2280 × 1000", color: "#9c7658", kind: "bed" as const, size: [1.8, 1, 2.28] as [number, number, number], room: "안방", position: [3.02, .5, 3.68] as [number, number, number], rotation: -Math.PI / 2 },
   { id: "oliver-daybed", category: "가구", icon: Box, title: "안데르센 올리버 하이가드 SS", meta: "1200 × 2120 × 960", color: "#b58a64", kind: "daybed" as const, size: [1.2, .96, 2.12] as [number, number, number], room: "아이방", position: [4.7, .48, -2.55] as [number, number, number] },
-  { id: "iloom-shelf", category: "가구", icon: Box, title: "일룸 에디키즈 슬라이딩 3단", meta: "1190 × 392 × 1054.5", color: "#d8d6ce", kind: "shelf" as const, size: [1.19, 1.0545, .392] as [number, number, number], room: "아이방", position: [5.54, .527, -3.2] as [number, number, number] },
+  { id: "iloom-shelf", category: "가구", icon: Box, title: "일룸 에디키즈 슬라이딩 3단", meta: "1190 × 392 × 1054.5", color: "#d8d6ce", kind: "shelf" as const, size: [1.19, 1.0545, .392] as [number, number, number], room: "아이방", position: [2.6, .527, -3.18] as [number, number, number], rotation: Math.PI / 2 },
   { id: "upia-desk", category: "가구", icon: SquareStack, title: "우피아 모션데스크 1800", meta: "1800 × 750 × 740", color: "#c3aa8b", kind: "desk" as const, size: [1.8, .74, .75] as [number, number, number], room: "작업방", position: [-4.35, .37, 1.15] as [number, number, number] },
-  { id: "desker-shelf", category: "가구", icon: Box, title: "데스커 800 오픈형 3단", meta: "800 × 320 × 1061", color: "#e7e7e1", kind: "shelf" as const, size: [.8, 1.061, .32] as [number, number, number], room: "작업방", position: [-3.48, .531, 5.28] as [number, number, number] },
+  { id: "desker-shelf", category: "가구", icon: Box, title: "데스커 800 오픈형 3단", meta: "800 × 320 × 1061", color: "#e7e7e1", kind: "shelf" as const, size: [.8, 1.061, .32] as [number, number, number], room: "작업방", position: [-3.18, .531, 3.42] as [number, number, number], rotation: Math.PI / 2 },
   { id: "oled77", category: "가전", icon: Box, title: "LG OLED77C9KW 77형 벽걸이", meta: "1722 × 56 × 991", color: "#202321", kind: "appliance" as const, size: [1.722, .991, .056] as [number, number, number], room: "거실 TV월", position: [-2.72, 1.28, 2.7] as [number, number, number], rotation: Math.PI / 2 },
-  { id: "kitchen-fridge", category: "가전", icon: PackageOpen, title: "키친핏 냉장고", meta: "912 × 697 × 1853", color: "#d9d9d4", kind: "appliance" as const, size: [.912, 1.853, .697] as [number, number, number], room: "주방", position: [1.72, .9265, -3.55] as [number, number, number] },
-  { id: "kimchi-fridge", category: "가전", icon: PackageOpen, title: "키친핏 김치냉장고", meta: "595 × 688 × 1853", color: "#c9cbc8", kind: "appliance" as const, size: [.595, 1.853, .688] as [number, number, number], room: "주방", position: [.88, .9265, -3.55] as [number, number, number] },
+  { id: "kitchen-fridge", category: "가전", icon: PackageOpen, title: "키친핏 냉장고", meta: "912 × 697 × 1853", color: "#d9d9d4", kind: "appliance" as const, size: [.912, 1.853, .697] as [number, number, number], room: "주방", position: [1.75, .9265, -3.56] as [number, number, number] },
+  { id: "kimchi-fridge", category: "가전", icon: PackageOpen, title: "키친핏 김치냉장고", meta: "595 × 688 × 1853", color: "#c9cbc8", kind: "appliance" as const, size: [.595, 1.853, .688] as [number, number, number], room: "주방", position: [.96, .9265, -3.56] as [number, number, number] },
   { id: "miele-dishwasher", category: "가전", icon: PackageOpen, title: "밀레 식기세척기", meta: "598 × 570 × 805", color: "#c8c9c6", kind: "appliance" as const, size: [.598, .805, .57] as [number, number, number], room: "주방", position: [-.28, .4025, -2.15] as [number, number, number] },
   { id: "dietrich-induction", category: "가전", icon: Grid2X2, title: "디트리쉬 DPI7686GP", meta: "650 × 515 × 40", color: "#252726", kind: "appliance" as const, size: [.65, .04, .515] as [number, number, number], room: "주방", position: [.58, .93, -2.15] as [number, number, number] },
   { id: "wine-cellar-catalog", category: "가전", icon: PackageOpen, title: "LG 미니와인셀러 W087B", meta: "282 × 497 × 534", color: "#393b39", kind: "appliance" as const, size: [.282, .534, .497] as [number, number, number], room: "주방", position: [-.73, .267, -2.15] as [number, number, number] },
@@ -396,9 +401,26 @@ function CommonBathFixtures() {
 
 function KitchenFixtures() {
   return (
-    <group position={[-.55, .925, -2.15]}>
-      <mesh rotation-x={-Math.PI / 2} position={[0, .012, 0]}><ringGeometry args={[.13, .24, 32]} /><meshStandardMaterial color="#777a77" metalness={.75} roughness={.2} /></mesh>
-      <mesh position={[0, .19, -.19]}><torusGeometry args={[.17, .018, 10, 24, Math.PI]} /><meshStandardMaterial color="#7d756d" metalness={.8} roughness={.18} /></mesh>
+    <group position={[0, .925, -2.15]}>
+      {/* 520 × 400 언더마운트 싱크볼: 상판 위 링 대신 실제 깊이가 보이는 볼 형태 */}
+      <RoundedBox args={[.52, .025, .4]} radius={.035} position={[0, .004, 0]}>
+        <meshStandardMaterial color="#727775" metalness={.78} roughness={.2} />
+      </RoundedBox>
+      <RoundedBox args={[.46, .018, .34]} radius={.03} position={[0, .017, 0]}>
+        <meshStandardMaterial color="#252a29" metalness={.35} roughness={.32} />
+      </RoundedBox>
+      <mesh position={[0, .027, 0]} rotation-x={-Math.PI / 2}>
+        <circleGeometry args={[.025, 20]} />
+        <meshStandardMaterial color="#101312" metalness={.45} roughness={.28} />
+      </mesh>
+
+      {/* 그로헤 계열의 절제된 ㄱ자형 풀아웃 수전 */}
+      <group position={[.2, .02, -.17]}>
+        <mesh position={[0, .14, 0]}><cylinderGeometry args={[.022, .026, .28, 18]} /><meshStandardMaterial color="#777b78" metalness={.9} roughness={.12} /></mesh>
+        <mesh position={[-.065, .28, 0]} rotation-z={Math.PI / 2}><cylinderGeometry args={[.019, .019, .13, 18]} /><meshStandardMaterial color="#777b78" metalness={.9} roughness={.12} /></mesh>
+        <mesh position={[-.13, .235, 0]}><cylinderGeometry args={[.021, .019, .09, 18]} /><meshStandardMaterial color="#777b78" metalness={.9} roughness={.12} /></mesh>
+        <mesh position={[.055, .08, 0]} rotation-z={Math.PI / 2}><cylinderGeometry args={[.009, .009, .11, 12]} /><meshStandardMaterial color="#777b78" metalness={.9} roughness={.12} /></mesh>
+      </group>
     </group>
   );
 }
