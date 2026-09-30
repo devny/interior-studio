@@ -113,6 +113,7 @@ const WALLS: WallSpec[] = [
 
   // 현관, 공용욕실, 다용도실
   { x: 1.45, z: 4.94, w: 2.9, d: .14 },
+  { x: 2.9, z: 3.67, w: .14, d: .48 },
   { x: 2.9, z: 4.94, w: .28, d: .28 },
   { x: 3.85, z: 2.1, w: 1.9, d: .14 },
   { x: 2.9, z: 2.77, w: .14, d: 1.34 },
@@ -214,6 +215,26 @@ function DoorOpening({ x, z, axis, width, rotation, wallColor }: { x: number; z:
   );
 }
 
+function MiddleDoor({ x, z, width, wallColor }: { x: number; z: number; width: number; wallColor: string }) {
+  const frame = "#60645f";
+  return (
+    <group>
+      <Wall position={[planX(x), 2.17, planZ(z + width / 2)]} size={[.14, .26, width]} color={wallColor} />
+      <group position={[planX(x), 1.03, planZ(z + width / 2)]} rotation-y={-Math.PI / 2}>
+        <mesh castShadow>
+          <boxGeometry args={[width - .04, 2.02, .035]} />
+          <meshStandardMaterial color="#c9d7d5" transparent opacity={.48} roughness={.18} metalness={.06} />
+        </mesh>
+        <mesh position={[0, 1.01, .024]}><boxGeometry args={[width, .055, .055]} /><meshStandardMaterial color={frame} /></mesh>
+        <mesh position={[0, -1.01, .024]}><boxGeometry args={[width, .055, .055]} /><meshStandardMaterial color={frame} /></mesh>
+        <mesh position={[-width / 2, 0, .024]}><boxGeometry args={[.055, 2.05, .055]} /><meshStandardMaterial color={frame} /></mesh>
+        <mesh position={[width / 2, 0, .024]}><boxGeometry args={[.055, 2.05, .055]} /><meshStandardMaterial color={frame} /></mesh>
+        <mesh position={[0, 0, .024]}><boxGeometry args={[.04, 2.02, .055]} /><meshStandardMaterial color={frame} /></mesh>
+      </group>
+    </group>
+  );
+}
+
 function MasterBathFixtures() {
   return (
     <group>
@@ -295,12 +316,13 @@ function ApartmentScene({ finish, view, items, selectedId, onSelect, showReferen
           return <Wall key={index} position={[planX(segment.x), segment.y ?? height / 2, planZ(segment.z)]} size={[segment.w, height, segment.d]} color={segment.material === "glass" ? "#b9d1d3" : wall} />;
         })}
       </group>
-      <DoorOpening x={1.3} z={3.43} axis="horizontal" width={.9} rotation={-Math.PI / 2.8} wallColor={wall} />
-      <DoorOpening x={2.9} z={5.08} axis="vertical" width={.92} rotation={Math.PI / 2 + Math.PI / 2.8} wallColor={wall} />
-      <DoorOpening x={3.16} z={4.43} axis="horizontal" width={.76} rotation={Math.PI / 2.8} wallColor={wall} />
-      <DoorOpening x={8.46} z={4.43} axis="horizontal" width={.74} rotation={-Math.PI / 2.8} wallColor={wall} />
-      <DoorOpening x={7.6} z={6.06} axis="vertical" width={.84} rotation={Math.PI / 2 + Math.PI / 2.8} wallColor={wall} />
-      <DoorOpening x={9.26} z={5.93} axis="horizontal" width={.8} rotation={Math.PI / 2.8} wallColor={wall} />
+      <DoorOpening x={1.3} z={3.43} axis="horizontal" width={.9} rotation={0} wallColor={wall} />
+      <MiddleDoor x={2.9} z={3.91} width={.89} wallColor={wall} />
+      <DoorOpening x={2.9} z={5.08} axis="vertical" width={.92} rotation={-Math.PI / 2} wallColor={wall} />
+      <DoorOpening x={3.16} z={4.43} axis="horizontal" width={.76} rotation={0} wallColor={wall} />
+      <DoorOpening x={8.46} z={4.43} axis="horizontal" width={.74} rotation={0} wallColor={wall} />
+      <DoorOpening x={7.6} z={6.06} axis="vertical" width={.84} rotation={-Math.PI / 2} wallColor={wall} />
+      <DoorOpening x={9.26} z={5.93} axis="horizontal" width={.8} rotation={0} wallColor={wall} />
       <MasterBathFixtures />
       {items.map((item) => <FurnitureModel key={item.id} item={item} selected={selectedId === item.id} onSelect={() => onSelect(item.id)} />)}
       <ContactShadows opacity={.28} scale={16} blur={2.3} far={4} />
