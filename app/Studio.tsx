@@ -108,11 +108,12 @@ const WALLS: WallSpec[] = [
   { x: 3.75, z: 1.6, w: 1.9, d: .16 },
 
   // 현관: 외부 현관문 → 현관 → 우측 유리 중문 → 복도
-  { x: .55, z: 4.53, w: 1.1, d: .16 },
-  { x: 2.4, z: 4.53, w: .8, d: .16 },
-  { x: 1.4, z: 6.04, w: 2.8, d: .14 },
-  { x: 2.8, z: 4.79, w: .14, d: .52 },
-  { x: 2.8, z: 5.97, w: .28, d: .14 },
+  { x: .075, z: 4.53, w: .15, d: .16 },
+  { x: 2, z: 4.53, w: 1.6, d: .16 },
+  { x: .925, z: 6.04, w: 1.85, d: .14 },
+  { x: 2.825, z: 6.04, w: .15, d: .14 },
+  { x: 2.8, z: 4.59, w: .14, d: .12 },
+  { x: 2.8, z: 5.8, w: .14, d: .49 },
 
   // 욕실1, 주방, 침실3
   { x: 4.7, z: 3.07, w: .14, d: 2.93 },
@@ -127,11 +128,13 @@ const WALLS: WallSpec[] = [
   { x: 9.8, z: 6.04, w: .2, d: .14 },
   { x: 11.2, z: 6.04, w: 1, d: .14 },
 
-  // 하부 세 공간의 경계. 확장부까지 같은 벽선으로 연장한다.
-  { x: 2.9, z: 6.12, w: .14, d: .16 },
-  { x: 2.9, z: 9.09, w: .14, d: 4.17 },
-  { x: 7.6, z: 6.12, w: .14, d: .16 },
-  { x: 7.6, z: 9.09, w: .14, d: 4.17 },
+  // 침실1 출입구는 도면처럼 상부 벽에 배치
+  { x: 7.675, z: 6.04, w: .15, d: .14 },
+  { x: 9.175, z: 6.04, w: 1.05, d: .14 },
+
+  // 하부 세 공간의 경계. 방문은 상부 벽에 있고 세로 벽은 확장부까지 연속된다.
+  { x: 2.9, z: 8.61, w: .14, d: 5.13 },
+  { x: 7.6, z: 8.61, w: .14, d: 5.13 },
 
   // 상부 발코니 창호와 확장된 전면 외창
   { x: 5.65, z: 1.6, w: 1.9, d: .1, height: .92, y: .46, material: "glass" },
@@ -310,12 +313,12 @@ function ApartmentScene({ finish, view, items, selectedId, onSelect, showReferen
           return <Wall key={index} position={[planX(segment.x), segment.y ?? height / 2, planZ(segment.z)]} size={[segment.w, height, segment.d]} color={segment.material === "glass" ? "#b9d1d3" : wall} />;
         })}
       </group>
-      <DoorOpening x={1.1} z={4.53} axis="horizontal" width={.9} rotation={0} wallColor={wall} />
-      <MiddleDoor x={2.8} z={5.05} width={.85} wallColor={wall} />
-      <DoorOpening x={2.9} z={6.2} axis="vertical" width={.8} rotation={-Math.PI / 2} wallColor={wall} />
+      <DoorOpening x={.15} z={4.53} axis="horizontal" width={1.05} rotation={0} wallColor={wall} />
+      <MiddleDoor x={2.8} z={4.65} width={.9} wallColor={wall} />
+      <DoorOpening x={1.85} z={6.04} axis="horizontal" width={.9} rotation={0} wallColor={wall} />
       <DoorOpening x={3.24} z={4.53} axis="horizontal" width={.66} rotation={0} wallColor={wall} />
       <DoorOpening x={8.48} z={4.53} axis="horizontal" width={.76} rotation={0} wallColor={wall} />
-      <DoorOpening x={7.6} z={6.2} axis="vertical" width={.8} rotation={-Math.PI / 2} wallColor={wall} />
+      <DoorOpening x={7.75} z={6.04} axis="horizontal" width={.9} rotation={0} wallColor={wall} />
       <DoorOpening x={9.9} z={6.04} axis="horizontal" width={.8} rotation={0} wallColor={wall} />
       <MasterBathFixtures />
       {items.map((item) => <FurnitureModel key={item.id} item={item} selected={selectedId === item.id} onSelect={() => onSelect(item.id)} />)}
