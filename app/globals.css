@@ -47,14 +47,16 @@ button { color: inherit; }
 .category-tabs button.active { color: var(--accent); background: #f7e9e3; font-weight: 700; }
 .section-label { font-size: 10px; font-weight: 750; color: #8a8b84; letter-spacing: .02em; }
 .catalog-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 10px; }
-.catalog-header button { border: 0; background: transparent; display: flex; align-items: center; color: #888; font-size: 10px; cursor: pointer; }
+.catalog-hint { color: #9a9b94; font-size: 9px; }
 .catalog-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 11px 9px; }
 .product-card { border: 0; background: transparent; padding: 0; text-align: left; cursor: pointer; min-width: 0; }
-.product-visual { height: 92px; border-radius: 10px; display: grid; place-items: center; color: rgba(42,42,36,.56); margin-bottom: 7px; box-shadow: inset 0 0 0 1px rgba(0,0,0,.035); transition: transform .2s ease; }
+.product-visual { position: relative; height: 92px; border-radius: 10px; display: grid; place-items: center; color: rgba(42,42,36,.56); margin-bottom: 7px; box-shadow: inset 0 0 0 1px rgba(0,0,0,.035); transition: transform .2s ease; }
 .product-card:hover .product-visual { transform: translateY(-2px); }
+.add-product { position: absolute; right: 7px; bottom: 7px; width: 23px; height: 23px; border-radius: 50%; display: grid; place-items: center; color: white; background: rgba(37,39,35,.82); box-shadow: 0 3px 9px rgba(0,0,0,.14); }
 .product-card strong, .product-card small { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; display: block; }
 .product-card strong { font-size: 11px; letter-spacing: -.035em; }
 .product-card small { color: #999; font-size: 8px; margin-top: 3px; }
+.catalog-empty { grid-column: 1 / -1; padding: 34px 10px; border: 1px dashed var(--line); border-radius: 10px; color: #999; text-align: center; font-size: 10px; }
 .finish-list { display: flex; flex-direction: column; gap: 7px; }
 .finish-list > .section-label { margin-bottom: 3px; }
 .finish-card { min-height: 58px; padding: 7px; border: 1px solid transparent; background: transparent; border-radius: 10px; display: grid; grid-template-columns: 45px 1fr auto; gap: 10px; align-items: center; text-align: left; cursor: pointer; }
@@ -111,16 +113,22 @@ button { color: inherit; }
 .measure-grid small { font-size: 7px; font-weight: 500; }
 .nudge-pad { display: flex; flex-direction: column; align-items: center; gap: 4px; }
 .nudge-pad > button, .nudge-pad > div > button { width: 29px; height: 24px; display: grid; place-items: center; border: 1px solid var(--line); background: white; border-radius: 6px; cursor: pointer; }
+.nudge-pad button:disabled { opacity: .4; cursor: not-allowed; }
 .nudge-pad svg { width: 14px; }
 .nudge-pad > div { display: flex; gap: 4px; align-items: center; }
 .nudge-pad > div span { width: 42px; height: 24px; display: grid; place-items: center; background: #eeeee9; border-radius: 6px; font-size: 8px; color: #888; }
-.rotate-button { margin-top: 9px; width: 100%; height: 31px; border: 1px solid var(--line); border-radius: 7px; background: white; font-size: 9px; display: flex; align-items: center; justify-content: center; gap: 6px; cursor: pointer; }
-.rotate-button:disabled { opacity: .45; cursor: not-allowed; }
+.edit-actions { display: grid; grid-template-columns: 1fr 35px; gap: 6px; margin-top: 9px; }
+.rotate-button, .delete-button { height: 31px; border: 1px solid var(--line); border-radius: 7px; background: white; font-size: 9px; display: flex; align-items: center; justify-content: center; gap: 6px; cursor: pointer; }
+.delete-button { color: #a74f43; border-color: #ead6d1; background: #fff9f7; }
+.rotate-button:disabled, .delete-button:disabled { opacity: .45; cursor: not-allowed; }
 .placement-ok { border-radius: 8px; background: #eaf0e7; color: #597052; padding: 9px; display: flex; align-items: center; gap: 8px; }
 .placement-ok > span { width: 21px; height: 21px; border-radius: 50%; background: #7d9673; color: white; display: grid; place-items: center; font-size: 10px; }
 .placement-ok strong, .placement-ok small { display: block; }
 .placement-ok strong { font-size: 9px; }
 .placement-ok small { margin-top: 2px; font-size: 7px; color: #80917a; }
+.placement-ok.invalid { background: #f7e8e5; color: #9d4139; }
+.placement-ok.invalid > span { background: #c55b50; }
+.placement-ok.invalid small { color: #a97872; }
 .material-chip { display: flex; align-items: center; gap: 8px; }
 .material-chip > span { width: 32px; height: 32px; border-radius: 7px; box-shadow: inset 0 0 0 1px rgba(0,0,0,.08); }
 .material-chip strong, .material-chip small { display: block; }

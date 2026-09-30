@@ -24,13 +24,15 @@ import {
   Sofa,
   Sparkles,
   SquareStack,
+  Plus,
+  Trash2,
   Undo2,
 } from "lucide-react";
-import { Suspense, useEffect, useMemo, useState } from "react";
+import { Suspense, useEffect, useMemo, useRef, useState } from "react";
 import * as THREE from "three";
 
 type FinishKey = "warm-white" | "sage" | "sand" | "stone";
-type FurnitureKind = "table" | "sofa" | "bed" | "shelf" | "island";
+type FurnitureKind = "table" | "sofa" | "bed" | "shelf" | "island" | "chair" | "appliance" | "light";
 
 type FurnitureItem = {
   id: string;
@@ -60,11 +62,18 @@ const INITIAL_ITEMS: FurnitureItem[] = [
 ];
 
 const CATALOG = [
-  { icon: Sofa, title: "3인 패브릭 소파", meta: "2600 × 920 × 780", color: "#c3b9a7" },
-  { icon: Armchair, title: "라운드 라운지 체어", meta: "760 × 820 × 740", color: "#8e9683" },
-  { icon: LampCeiling, title: "오팔 펜던트 300", meta: "Ø300 × H240", color: "#e8d7ad" },
-  { icon: SquareStack, title: "오크 사이드 테이블", meta: "450 × 450 × 510", color: "#ad8058" },
+  { id: "fabric-sofa", category: "가구", icon: Sofa, title: "3인 패브릭 소파", meta: "2600 × 920 × 780", color: "#c3b9a7", kind: "sofa" as const, size: [2.6, .78, .92] as [number, number, number], room: "거실", position: [-1.05, .39, 1.62] as [number, number, number] },
+  { id: "lounge-chair", category: "가구", icon: Armchair, title: "라운드 라운지 체어", meta: "760 × 820 × 740", color: "#8e9683", kind: "chair" as const, size: [.76, .74, .82] as [number, number, number], room: "거실", position: [1.15, .37, 1.8] as [number, number, number] },
+  { id: "side-table", category: "가구", icon: SquareStack, title: "오크 사이드 테이블", meta: "450 × 450 × 510", color: "#ad8058", kind: "table" as const, size: [.45, .51, .45] as [number, number, number], room: "거실", position: [1.2, .255, 2.7] as [number, number, number] },
+  { id: "book-shelf", category: "가구", icon: Box, title: "오크 책장", meta: "1800 × 340 × 2050", color: "#7a5b44", kind: "shelf" as const, size: [1.8, 2.05, .34] as [number, number, number], room: "침실2", position: [-4.45, 1.025, 1.5] as [number, number, number] },
+  { id: "kitchen-fridge", category: "가전", icon: PackageOpen, title: "키친핏 냉장고", meta: "912 × 697 × 1853", color: "#d9d9d4", kind: "appliance" as const, size: [.912, 1.853, .697] as [number, number, number], room: "주방/식당", position: [-.55, .9265, -2.2] as [number, number, number] },
+  { id: "kimchi-fridge", category: "가전", icon: PackageOpen, title: "변온 김치냉장고", meta: "595 × 688 × 1853", color: "#c9cbc8", kind: "appliance" as const, size: [.595, 1.853, .688] as [number, number, number], room: "주방/식당", position: [.4, .9265, -2.2] as [number, number, number] },
+  { id: "living-tv", category: "가전", icon: Box, title: "65형 TV", meta: "1450 × 55 × 830", color: "#303230", kind: "appliance" as const, size: [1.45, .83, .12] as [number, number, number], room: "거실", position: [1.7, .7, 1.15] as [number, number, number] },
+  { id: "opal-pendant", category: "조명", icon: LampCeiling, title: "오팔 펜던트 300", meta: "Ø300 × H240", color: "#e8d7ad", kind: "light" as const, size: [.3, .24, .3] as [number, number, number], room: "거실 확장부", position: [-.8, 2.12, 4.62] as [number, number, number] },
+  { id: "ceiling-light", category: "조명", icon: LampCeiling, title: "슬림 천장등 600", meta: "600 × 600 × 65", color: "#f0e6c9", kind: "light" as const, size: [.6, .065, .6] as [number, number, number], room: "거실", position: [0, 2.2, 1.7] as [number, number, number] },
 ];
+
+type CatalogItem = (typeof CATALOG)[number];
 
 function Wall({ position, size, color }: { position: [number, number, number]; size: [number, number, number]; color: string }) {
   return (
@@ -79,6 +88,34 @@ const PLAN_WIDTH = 11.7;
 const PLAN_DEPTH = 11.17;
 const planX = (value: number) => value - PLAN_WIDTH / 2;
 const planZ = (value: number) => value - PLAN_DEPTH / 2;
+
+function footprint(item: FurnitureItem) {
+  const cos = Math.abs(Math.cos(item.rotation));
+  const sin = Math.abs(Math.sin(item.rotation));
+  return {
+    width: item.size[0] * cos + item.size[2] * sin,
+    depth: item.size[0] * sin + item.size[2] * cos,
+  };
+}
+
+function placementIssue(item: FurnitureItem, items: FurnitureItem[]) {
+  const current = footprint(item);
+  const halfPlanWidth = PLAN_WIDTH / 2 - .12;
+  const halfPlanDepth = PLAN_DEPTH / 2 - .12;
+  if (
+    Math.abs(item.position[0]) + current.width / 2 > halfPlanWidth ||
+    Math.abs(item.position[2]) + current.depth / 2 > halfPlanDepth
+  ) return "도면 외곽을 벗어났어요";
+
+  if (item.kind === "light") return null;
+  const collision = items.some((other) => {
+    if (other.id === item.id || other.kind === "light") return false;
+    const next = footprint(other);
+    return Math.abs(item.position[0] - other.position[0]) < (current.width + next.width) / 2 - .04
+      && Math.abs(item.position[2] - other.position[2]) < (current.depth + next.depth) / 2 - .04;
+  });
+  return collision ? "다른 제품과 겹쳐 있어요" : null;
+}
 
 type RoomSpec = { name: string; x: number; z: number; w: number; d: number; color: string; area?: string };
 type WallSpec = { x: number; z: number; w: number; d: number; height?: number; y?: number; material?: "wall" | "glass" };
@@ -257,14 +294,14 @@ function Chair({ position, rotation = 0 }: { position: [number, number, number];
   );
 }
 
-function FurnitureModel({ item, selected, onSelect }: { item: FurnitureItem; selected: boolean; onSelect: () => void }) {
+function FurnitureModel({ item, selected, invalid, onSelect }: { item: FurnitureItem; selected: boolean; invalid: boolean; onSelect: () => void }) {
   const [w, h, d] = item.size;
   return (
     <group position={item.position} rotation-y={item.rotation} onClick={(event) => { event.stopPropagation(); onSelect(); }}>
       {selected && (
         <mesh position={[0, .015 - item.position[1], 0]} rotation-x={-Math.PI / 2}>
           <ringGeometry args={[Math.max(w, d) * .55, Math.max(w, d) * .62, 48]} />
-          <meshBasicMaterial color="#d65a36" transparent opacity={.8} />
+          <meshBasicMaterial color={invalid ? "#c83f3f" : "#d65a36"} transparent opacity={.86} />
         </mesh>
       )}
       {item.kind === "table" && <>
@@ -291,12 +328,27 @@ function FurnitureModel({ item, selected, onSelect }: { item: FurnitureItem; sel
         <RoundedBox args={[w, h, d]} radius={.045} castShadow><meshStandardMaterial color={item.color} roughness={.68} /></RoundedBox>
         <mesh position={[0, h*.52, 0]} castShadow><boxGeometry args={[w+.08, .06, d+.08]} /><meshStandardMaterial color="#e1ded7" roughness={.32} /></mesh>
       </>}
+      {item.kind === "chair" && <>
+        <RoundedBox args={[w, .16, d * .82]} radius={.08} position={[0, -.05, 0]} castShadow><meshStandardMaterial color={item.color} roughness={.9} /></RoundedBox>
+        <RoundedBox args={[w, h * .62, .13]} radius={.06} position={[0, h * .19, d * .38]} rotation-x={-.1} castShadow><meshStandardMaterial color={item.color} roughness={.9} /></RoundedBox>
+        {[[-w*.35, -h*.28, -d*.3], [w*.35, -h*.28, -d*.3], [-w*.35, -h*.28, d*.3], [w*.35, -h*.28, d*.3]].map((p, i) => <mesh key={i} position={p as [number, number, number]}><cylinderGeometry args={[.025, .025, h*.5, 10]} /><meshStandardMaterial color="#5f5246" metalness={.15} /></mesh>)}
+      </>}
+      {item.kind === "appliance" && <>
+        <RoundedBox args={[w, h, d]} radius={Math.min(.06, w * .08)} castShadow><meshStandardMaterial color={item.color} roughness={.32} metalness={.28} /></RoundedBox>
+        <mesh position={[0, 0, d / 2 + .008]}><planeGeometry args={[w * .82, h * .008]} /><meshBasicMaterial color="#777a76" /></mesh>
+        <mesh position={[w * .32, 0, d / 2 + .012]}><boxGeometry args={[.018, h * .72, .014]} /><meshStandardMaterial color="#464946" metalness={.7} /></mesh>
+      </>}
+      {item.kind === "light" && <>
+        {h > .1 && <mesh position={[0, .3, 0]}><cylinderGeometry args={[.012, .012, .6, 10]} /><meshStandardMaterial color="#52534e" /></mesh>}
+        <RoundedBox args={[w, h, d]} radius={Math.min(.12, w * .3)} castShadow><meshStandardMaterial color={item.color} emissive={item.color} emissiveIntensity={.8} roughness={.32} /></RoundedBox>
+        <pointLight position={[0, -.18, 0]} intensity={1.2} distance={4.2} color="#ffe5b4" />
+      </>}
       {selected && <Html position={[0, h / 2 + .42, 0]} center className="object-label"><strong>{item.name}</strong><span>{Math.round(w*1000)} × {Math.round(d*1000)}</span></Html>}
     </group>
   );
 }
 
-function ApartmentScene({ finish, view, items, selectedId, onSelect, showReference, referenceOpacity }: { finish: FinishKey; view: "3d" | "2d"; items: FurnitureItem[]; selectedId: string | null; onSelect: (id: string | null) => void; showReference: boolean; referenceOpacity: number }) {
+function ApartmentScene({ finish, view, items, selectedId, invalidId, onSelect, showReference, referenceOpacity }: { finish: FinishKey; view: "3d" | "2d"; items: FurnitureItem[]; selectedId: string | null; invalidId: string | null; onSelect: (id: string | null) => void; showReference: boolean; referenceOpacity: number }) {
   const wall = FINISHES[finish].color;
   return (
     <>
@@ -321,7 +373,7 @@ function ApartmentScene({ finish, view, items, selectedId, onSelect, showReferen
       <DoorOpening x={7.75} z={6.04} axis="horizontal" width={.9} rotation={0} wallColor={wall} />
       <DoorOpening x={9.9} z={6.04} axis="horizontal" width={.8} rotation={0} wallColor={wall} />
       <MasterBathFixtures />
-      {items.map((item) => <FurnitureModel key={item.id} item={item} selected={selectedId === item.id} onSelect={() => onSelect(item.id)} />)}
+      {items.map((item) => <FurnitureModel key={item.id} item={item} selected={selectedId === item.id} invalid={invalidId === item.id} onSelect={() => onSelect(item.id)} />)}
       <ContactShadows opacity={.28} scale={16} blur={2.3} far={4} />
       <Environment preset="apartment" environmentIntensity={.35} />
       <OrbitControls makeDefault enableDamping target={[0, 0, 0]} maxPolarAngle={view === "2d" ? .01 : Math.PI / 2.08} minPolarAngle={view === "2d" ? 0 : .35} enableRotate={view !== "2d"} />
@@ -335,10 +387,17 @@ export function Studio() {
   const [items, setItems] = useState<FurnitureItem[]>(INITIAL_ITEMS);
   const [selectedId, setSelectedId] = useState<string | null>("dining");
   const [category, setCategory] = useState("가구");
+  const [query, setQuery] = useState("");
   const [saved, setSaved] = useState(false);
   const [showReference, setShowReference] = useState(false);
   const [referenceOpacity, setReferenceOpacity] = useState(.52);
+  const catalogSequence = useRef(0);
   const selected = useMemo(() => items.find((item) => item.id === selectedId) ?? null, [items, selectedId]);
+  const selectedIssue = useMemo(() => selected ? placementIssue(selected, items) : null, [selected, items]);
+  const filteredCatalog = useMemo(() => {
+    const keyword = query.trim().toLocaleLowerCase("ko");
+    return CATALOG.filter((item) => item.category === category && (!keyword || `${item.title} ${item.meta}`.toLocaleLowerCase("ko").includes(keyword)));
+  }, [category, query]);
 
   useEffect(() => {
     const stored = window.localStorage.getItem("sanghyeon-studio-v3-cad-floorplan");
@@ -358,6 +417,33 @@ export function Studio() {
     updateSelected({ position: [selected.position[0] + dx, selected.position[1], selected.position[2] + dz] });
   };
 
+  const addCatalogItem = (product: CatalogItem) => {
+    let nextSequence = catalogSequence.current + 1;
+    while (items.some((item) => item.id === `${product.id}-${nextSequence}`)) nextSequence += 1;
+    catalogSequence.current = nextSequence;
+    const id = `${product.id}-${nextSequence}`;
+    const next: FurnitureItem = {
+      id,
+      name: product.title,
+      room: product.room,
+      kind: product.kind,
+      size: [...product.size],
+      position: [...product.position],
+      rotation: 0,
+      color: product.color,
+    };
+    setItems((current) => [...current, next]);
+    setSelectedId(id);
+    setSaved(false);
+  };
+
+  const deleteSelected = () => {
+    if (!selected || selected.fixed) return;
+    setItems((current) => current.filter((item) => item.id !== selected.id));
+    setSelectedId(null);
+    setSaved(false);
+  };
+
   const save = () => {
     window.localStorage.setItem("sanghyeon-studio-v3-cad-floorplan", JSON.stringify({ items, finish }));
     setSaved(true);
@@ -375,11 +461,11 @@ export function Studio() {
       <section className="workspace">
         <aside className="library-panel">
           <div className="panel-heading"><div><span className="eyebrow">LIBRARY</span><h1>공간 채우기</h1></div><button className="bare-icon" aria-label="패널 닫기"><PanelLeftClose size={19} /></button></div>
-          <label className="search"><Search size={16} /><input aria-label="제품 검색" placeholder="가구, 가전, 조명 검색" /></label>
+          <label className="search"><Search size={16} /><input aria-label="제품 검색" placeholder="가구, 가전, 조명 검색" value={query} onChange={(event) => setQuery(event.target.value)} /></label>
           <nav className="category-tabs" aria-label="제품 카테고리">
             {[{name:"가구",icon:Sofa},{name:"마감재",icon:Grid2X2},{name:"가전",icon:PackageOpen},{name:"조명",icon:LampCeiling}].map(({ name, icon: Icon }) => <button key={name} className={category === name ? "active" : ""} onClick={() => setCategory(name)}><Icon size={18} /><span>{name}</span></button>)}
           </nav>
-          {category === "마감재" ? <div className="finish-list"><div className="section-label">벽 마감 · 4</div>{(Object.entries(FINISHES) as [FinishKey, typeof FINISHES[FinishKey]][]).map(([key, item]) => <button key={key} className={`finish-card ${finish === key ? "selected" : ""}`} onClick={() => { setFinish(key); setSaved(false); }}><span className="finish-swatch" style={{background:item.color}} /><span><strong>{item.name}</strong><small>{item.sub}</small></span>{finish === key && <Sparkles size={16} />}</button>)}</div> : <div className="catalog"><div className="catalog-header"><span className="section-label">추천 {category}</span><button>전체 보기 <ChevronRight size={13} /></button></div><div className="catalog-grid">{CATALOG.map(({icon:Icon,...item}) => <button className="product-card" key={item.title}><span className="product-visual" style={{background:`linear-gradient(145deg, ${item.color}, #ece7dd)`}}><Icon size={40} strokeWidth={1.2} /></span><strong>{item.title}</strong><small>{item.meta}</small></button>)}</div></div>}
+          {category === "마감재" ? <div className="finish-list"><div className="section-label">벽 마감 · 4</div>{(Object.entries(FINISHES) as [FinishKey, typeof FINISHES[FinishKey]][]).map(([key, item]) => <button key={key} className={`finish-card ${finish === key ? "selected" : ""}`} onClick={() => { setFinish(key); setSaved(false); }}><span className="finish-swatch" style={{background:item.color}} /><span><strong>{item.name}</strong><small>{item.sub}</small></span>{finish === key && <Sparkles size={16} />}</button>)}</div> : <div className="catalog"><div className="catalog-header"><span className="section-label">추천 {category} · {filteredCatalog.length}</span><span className="catalog-hint">눌러서 배치</span></div><div className="catalog-grid">{filteredCatalog.map(({icon:Icon,...item}) => <button className="product-card" key={item.id} onClick={() => addCatalogItem({ icon: Icon, ...item })}><span className="product-visual" style={{background:`linear-gradient(145deg, ${item.color}, #ece7dd)`}}><Icon size={40} strokeWidth={1.2} /><span className="add-product"><Plus size={13} /></span></span><strong>{item.title}</strong><small>{item.meta}</small></button>)}{filteredCatalog.length === 0 && <div className="catalog-empty">검색 결과가 없어요</div>}</div></div>}
           <div className="accuracy-note"><Maximize2 size={17} /><div><strong>실측 전 초안</strong><span>평면 구조와 가구 규격을 먼저 검토하고 있어요.</span></div></div>
         </aside>
 
@@ -391,7 +477,7 @@ export function Studio() {
             {showReference && <label><span>투명도</span><input aria-label="도면 투명도" type="range" min="0.15" max="0.85" step="0.05" value={referenceOpacity} onChange={(event) => setReferenceOpacity(Number(event.target.value))} /></label>}
           </div>}
           <Canvas shadows dpr={[1, 1.65]} camera={{ position: [11.6, 10.8, 13.2], fov: 38 }}>
-            <Suspense fallback={null}><ApartmentScene finish={finish} view={view} items={items} selectedId={selectedId} onSelect={setSelectedId} showReference={showReference} referenceOpacity={referenceOpacity} /></Suspense>
+            <Suspense fallback={null}><ApartmentScene finish={finish} view={view} items={items} selectedId={selectedId} invalidId={selectedIssue ? selectedId : null} onSelect={setSelectedId} showReference={showReference} referenceOpacity={referenceOpacity} /></Suspense>
           </Canvas>
           <div className="orientation"><span>N</span><div /></div>
           <div className="canvas-help"><Move3D size={15} /> 드래그로 둘러보고, 스크롤로 확대하세요</div>
@@ -402,8 +488,8 @@ export function Studio() {
           {selected ? <>
             <div className="selection-title"><span className="selection-icon">{selected.kind === "table" ? <SquareStack size={20} /> : <Box size={20} />}</span><div><span className="eyebrow">SELECTED</span><h2>{selected.name}</h2><p>{selected.room}</p></div></div>
             <div className="property-section"><div className="property-heading"><span>제품 규격</span><button>실측값</button></div><div className="measure-grid"><label>너비<strong>{Math.round(selected.size[0]*1000)}<small> mm</small></strong></label><label>깊이<strong>{Math.round(selected.size[2]*1000)}<small> mm</small></strong></label><label>높이<strong>{Math.round(selected.size[1]*1000)}<small> mm</small></strong></label></div></div>
-            <div className="property-section"><div className="property-heading"><span>위치 조정</span><small>100mm 단위</small></div><div className="nudge-pad"><button onClick={() => nudge(0,-.1)}><ChevronUp /></button><div><button onClick={() => nudge(-.1,0)}><ChevronLeft /></button><span>{selected.fixed ? "고정" : "이동"}</span><button onClick={() => nudge(.1,0)}><ChevronRight /></button></div><button onClick={() => nudge(0,.1)}><ChevronDown /></button></div><button disabled={selected.fixed} className="rotate-button" onClick={() => updateSelected({rotation:selected.rotation + Math.PI/2})}><RotateCw size={16} /> 90° 회전</button></div>
-            <div className="property-section"><div className="property-heading"><span>배치 상태</span></div><div className="placement-ok"><span>✓</span><div><strong>배치 가능한 위치</strong><small>현재 다른 가구와 겹치지 않아요</small></div></div></div>
+            <div className="property-section"><div className="property-heading"><span>위치 조정</span><small>100mm 단위</small></div><div className="nudge-pad"><button disabled={selected.fixed} onClick={() => nudge(0,-.1)}><ChevronUp /></button><div><button disabled={selected.fixed} onClick={() => nudge(-.1,0)}><ChevronLeft /></button><span>{selected.fixed ? "고정" : "이동"}</span><button disabled={selected.fixed} onClick={() => nudge(.1,0)}><ChevronRight /></button></div><button disabled={selected.fixed} onClick={() => nudge(0,.1)}><ChevronDown /></button></div><div className="edit-actions"><button disabled={selected.fixed} className="rotate-button" onClick={() => updateSelected({rotation:selected.rotation + Math.PI/2})}><RotateCw size={16} /> 90° 회전</button><button disabled={selected.fixed} className="delete-button" onClick={deleteSelected} aria-label="선택 제품 삭제"><Trash2 size={15} /></button></div></div>
+            <div className="property-section"><div className="property-heading"><span>배치 상태</span></div><div className={`placement-ok ${selectedIssue ? "invalid" : ""}`}><span>{selectedIssue ? "!" : "✓"}</span><div><strong>{selectedIssue ?? "배치 가능한 위치"}</strong><small>{selectedIssue ? "이동하거나 90° 회전해 간격을 확보하세요" : "도면 안에서 다른 제품과 겹치지 않아요"}</small></div></div></div>
             <div className="property-section surface"><div className="property-heading"><span>소재</span></div><div className="material-chip"><span style={{background:selected.color}} /><div><strong>기존 제품 마감</strong><small>보유 가구 · 변경 없음</small></div></div></div>
           </> : <div className="empty-selection"><div><Move3D size={24} /></div><h2>가구를 선택해보세요</h2><p>크기와 위치를 확인하고<br/>정확하게 배치할 수 있어요.</p></div>}
           <div className="plan-facts"><span className="eyebrow">DRAWING FACTS</span><ul><li><span>01</span>제공 CAD 도면을 좌우반전</li><li><span>02</span>침실2·거실·침실1 발코니 확장</li><li><span>03</span>현관문 → 중문 → 복도 동선</li></ul></div>
