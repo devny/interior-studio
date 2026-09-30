@@ -390,6 +390,70 @@ function Chair({ position, rotation = 0 }: { position: [number, number, number];
   );
 }
 
+function ApplianceModel({ item }: { item: FurnitureItem }) {
+  const [w, h, d] = item.size;
+  const name = item.name;
+
+  if (name.includes("OLED") || name.includes("TV")) {
+    return <>
+      <RoundedBox args={[w, h, Math.max(d, .045)]} radius={.025} castShadow>
+        <meshStandardMaterial color="#171918" roughness={.18} metalness={.25} />
+      </RoundedBox>
+      <mesh position={[0, 0, d / 2 + .006]}>
+        <planeGeometry args={[w * .94, h * .88]} />
+        <meshStandardMaterial color="#263331" emissive="#14201f" emissiveIntensity={.25} roughness={.08} />
+      </mesh>
+      <mesh position={[0, -h * .54, 0]}><boxGeometry args={[w * .22, .045, .12]} /><meshStandardMaterial color="#252826" metalness={.5} /></mesh>
+    </>;
+  }
+
+  if (name.includes("데스크탑")) {
+    return <>
+      <RoundedBox args={[w, h, d]} radius={.025} castShadow><meshStandardMaterial color={item.color} roughness={.3} metalness={.35} /></RoundedBox>
+      {[.16, -.16].map((y) => <mesh key={y} position={[0, y * h, d / 2 + .008]} rotation-x={Math.PI / 2}><torusGeometry args={[w * .22, .012, 8, 24]} /><meshStandardMaterial color="#717b78" emissive="#5f8d82" emissiveIntensity={.35} /></mesh>)}
+      <mesh position={[w * .28, h * .36, d / 2 + .01]}><sphereGeometry args={[.012, 10, 10]} /><meshStandardMaterial color="#86cbb3" emissive="#86cbb3" emissiveIntensity={1} /></mesh>
+    </>;
+  }
+
+  if (name.includes("인덕션")) {
+    return <>
+      <RoundedBox args={[w, Math.max(h, .025), d]} radius={.025} castShadow><meshStandardMaterial color="#171918" roughness={.08} metalness={.18} /></RoundedBox>
+      {[[-.23, -.22], [.23, -.22], [-.23, .22], [.23, .22]].map(([x, z], index) => <mesh key={index} position={[x * w, h / 2 + .006, z * d]} rotation-x={-Math.PI / 2}><ringGeometry args={[Math.min(w, d) * .12, Math.min(w, d) * .135, 28]} /><meshStandardMaterial color="#686d69" emissive="#343735" emissiveIntensity={.2} /></mesh>)}
+    </>;
+  }
+
+  if (name.includes("와인셀러")) {
+    return <>
+      <RoundedBox args={[w, h, d]} radius={.025} castShadow><meshStandardMaterial color={item.color} roughness={.24} metalness={.35} /></RoundedBox>
+      <mesh position={[0, 0, d / 2 + .006]}><planeGeometry args={[w * .82, h * .82]} /><meshStandardMaterial color="#18201f" transparent opacity={.82} roughness={.08} /></mesh>
+      {[-.28, 0, .28].map((ratio) => <mesh key={ratio} position={[0, h * ratio, d / 2 + .014]}><boxGeometry args={[w * .7, .012, .012]} /><meshStandardMaterial color="#9c8872" metalness={.25} /></mesh>)}
+      <mesh position={[w * .36, 0, d / 2 + .018]}><boxGeometry args={[.014, h * .64, .012]} /><meshStandardMaterial color="#b5aea2" metalness={.75} /></mesh>
+    </>;
+  }
+
+  if (name.includes("식기세척기")) {
+    return <>
+      <RoundedBox args={[w, h, d]} radius={.018} castShadow><meshStandardMaterial color={item.color} roughness={.28} metalness={.42} /></RoundedBox>
+      <mesh position={[0, h * .34, d / 2 + .008]}><boxGeometry args={[w * .86, .055, .012]} /><meshStandardMaterial color="#474b49" metalness={.65} /></mesh>
+      <mesh position={[0, h * .41, d / 2 + .012]}><boxGeometry args={[w * .32, .018, .014]} /><meshStandardMaterial color="#747875" /></mesh>
+    </>;
+  }
+
+  if (name.includes("냉장고")) {
+    return <>
+      <RoundedBox args={[w, h, d]} radius={.035} castShadow><meshStandardMaterial color={item.color} roughness={.28} metalness={.25} /></RoundedBox>
+      <mesh position={[0, h * .12, d / 2 + .008]}><boxGeometry args={[w * .94, .014, .012]} /><meshStandardMaterial color="#9c9f9b" /></mesh>
+      <mesh position={[0, h * .2, d / 2 + .01]}><boxGeometry args={[.014, h * .52, .014]} /><meshStandardMaterial color="#9c9f9b" /></mesh>
+      {[-.08, .08].map((x) => <mesh key={x} position={[x * w, h * .12, d / 2 + .018]}><boxGeometry args={[.018, h * .34, .018]} /><meshStandardMaterial color="#666b68" metalness={.7} /></mesh>)}
+    </>;
+  }
+
+  return <>
+    <RoundedBox args={[w, h, d]} radius={Math.min(.06, w * .08)} castShadow><meshStandardMaterial color={item.color} roughness={.32} metalness={.28} /></RoundedBox>
+    <mesh position={[0, 0, d / 2 + .008]}><planeGeometry args={[w * .82, h * .008]} /><meshBasicMaterial color="#777a76" /></mesh>
+  </>;
+}
+
 function FurnitureModel({ item, selected, invalid, onSelect }: { item: FurnitureItem; selected: boolean; invalid: boolean; onSelect: () => void }) {
   const [w, h, d] = item.size;
   return (
@@ -454,11 +518,7 @@ function FurnitureModel({ item, selected, invalid, onSelect }: { item: Furniture
         <RoundedBox args={[w, h * .62, .13]} radius={.06} position={[0, h * .19, d * .38]} rotation-x={-.1} castShadow><meshStandardMaterial color={item.color} roughness={.9} /></RoundedBox>
         {[[-w*.35, -h*.28, -d*.3], [w*.35, -h*.28, -d*.3], [-w*.35, -h*.28, d*.3], [w*.35, -h*.28, d*.3]].map((p, i) => <mesh key={i} position={p as [number, number, number]}><cylinderGeometry args={[.025, .025, h*.5, 10]} /><meshStandardMaterial color="#5f5246" metalness={.15} /></mesh>)}
       </>}
-      {item.kind === "appliance" && <>
-        <RoundedBox args={[w, h, d]} radius={Math.min(.06, w * .08)} castShadow><meshStandardMaterial color={item.color} roughness={.32} metalness={.28} /></RoundedBox>
-        <mesh position={[0, 0, d / 2 + .008]}><planeGeometry args={[w * .82, h * .008]} /><meshBasicMaterial color="#777a76" /></mesh>
-        <mesh position={[w * .32, 0, d / 2 + .012]}><boxGeometry args={[.018, h * .72, .014]} /><meshStandardMaterial color="#464946" metalness={.7} /></mesh>
-      </>}
+      {item.kind === "appliance" && <ApplianceModel item={item} />}
       {item.kind === "light" && <>
         {h > .1 && <mesh position={[0, .3, 0]}><cylinderGeometry args={[.012, .012, .6, 10]} /><meshStandardMaterial color="#52534e" /></mesh>}
         {item.name.includes("PH5") ? <group>
@@ -594,12 +654,21 @@ export function Studio() {
     window.setTimeout(() => setSaved(false), 1800);
   };
 
+  const restoreProjectbook = () => {
+    window.localStorage.removeItem(STORAGE_KEY);
+    setItems(INITIAL_ITEMS);
+    setFinish("warm-white");
+    setSelectedId("living-sofa");
+    setSaved(false);
+    showNotice("기획서 V4 기본 배치를 복원했어요");
+  };
+
   return (
     <main className="studio-shell">
       <header className="topbar">
         <div className="brand"><div className="brand-mark"><Home size={18} /></div><div><strong>Sanghyeon Studio</strong><span>광교상현마을현대 · 33평</span></div></div>
         <div className="project-title"><span className="status-dot" />프로젝트북 V4 배치안 <ChevronDown size={14} /></div>
-        <div className="header-actions"><button className="icon-button" aria-label="실행 취소"><Undo2 size={17} /></button><button className="secondary-button"><Eye size={16} /> 미리보기</button><button className="primary-button" onClick={save}><Save size={16} /> {saved ? "저장했어요" : "내 기기에 저장"}</button></div>
+        <div className="header-actions"><button className="icon-button" aria-label="기획서 기본 배치 복원" title="기획서 기본 배치 복원" onClick={restoreProjectbook}><Undo2 size={17} /></button><button className="secondary-button" onClick={() => setView("3d")}><Eye size={16} /> 미리보기</button><button className="primary-button" onClick={save}><Save size={16} /> {saved ? "저장했어요" : "내 기기에 저장"}</button></div>
       </header>
 
       <section className="workspace">
