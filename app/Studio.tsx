@@ -47,7 +47,7 @@ type FurnitureItem = {
 };
 
 const FINISHES: Record<FinishKey, { name: string; sub: string; color: string; texture: string }> = {
-  "warm-white": { name: "모던 회벽 화이트", sub: "LX 디아망 · 회벽 질감", color: "#e8e3d7", texture: "/materials/wallpaper-plaster.svg" },
+  "warm-white": { name: "모던 회벽 화이트", sub: "LX 디아망 · 회벽 질감", color: "#e8e3d7", texture: "/materials/wallpaper-plaster-real.webp" },
   sage: { name: "소프트 세이지", sub: "무광 패브릭 벽지", color: "#aeb5a1", texture: "/materials/wallpaper-sage.svg" },
   sand: { name: "샌드 베이지", sub: "세로 직조 질감 벽지", color: "#cbbda6", texture: "/materials/wallpaper-sand.svg" },
   stone: { name: "웜 그레이 린넨", sub: "교차 직조 질감 벽지", color: "#babbb6", texture: "/materials/wallpaper-linen.svg" },
@@ -142,7 +142,7 @@ function Wall({ position, size, color, finish }: { position: [number, number, nu
   return (
     <mesh position={position} castShadow receiveShadow>
       <boxGeometry args={size} />
-      <meshStandardMaterial color={finish ? "#ffffff" : color} map={finish ? wallpaper : undefined} roughness={.92} />
+      <meshStandardMaterial color={finish ? "#ffffff" : color} map={finish ? wallpaper : undefined} bumpMap={finish ? wallpaper : undefined} bumpScale={.012} roughness={.94} />
     </mesh>
   );
 }
@@ -258,11 +258,26 @@ const WALLS: WallSpec[] = [
 ];
 
 function RoomFloor({ room, showLabel }: { room: RoomSpec; showLabel: boolean }) {
+  const tiled = /욕실|현관|발코니/.test(room.name);
+  const sourceTexture = useTexture(tiled ? "/materials/floor-porcelain-greige.webp" : "/materials/floor-oak-natural.webp");
+  const floorTexture = useMemo(() => {
+    const texture = sourceTexture.clone();
+    texture.wrapS = THREE.RepeatWrapping;
+    texture.wrapT = THREE.RepeatWrapping;
+    texture.repeat.set(Math.max(.5, room.w / (tiled ? 3.2 : 3)), Math.max(.5, room.d / (tiled ? 3.2 : 3)));
+    texture.colorSpace = THREE.SRGBColorSpace;
+    texture.anisotropy = 8;
+    texture.needsUpdate = true;
+    return texture;
+  }, [room.d, room.w, sourceTexture, tiled]);
+
+  useEffect(() => () => floorTexture.dispose(), [floorTexture]);
+
   return (
     <group>
       <mesh rotation-x={-Math.PI / 2} receiveShadow position={[planX(room.x), 0, planZ(room.z)]}>
         <planeGeometry args={[room.w - .04, room.d - .04]} />
-        <meshStandardMaterial color={room.color} roughness={.84} />
+        <meshStandardMaterial color={tiled ? "#f3f0ea" : "#f8f0e2"} map={floorTexture} bumpMap={floorTexture} bumpScale={tiled ? .014 : .01} roughness={tiled ? .82 : .72} />
       </mesh>
       {showLabel && <Html position={[planX(room.x), .05, planZ(room.z)]} center className="room-label">{room.name}</Html>}
     </group>
@@ -270,12 +285,22 @@ function RoomFloor({ room, showLabel }: { room: RoomSpec; showLabel: boolean }) 
 }
 
 function CameraRig({ view }: { view: "3d" | "2d" }) {
-  const { camera } = useThree();
+  const { camera, size } = useThree();
   useEffect(() => {
-    camera.position.set(view === "2d" ? 0 : 12.2, view === "2d" ? 17.2 : 11.4, view === "2d" ? .01 : 14.1);
-    camera.lookAt(0, 0, 0);
+    if (view === "2d") {
+      const perspective = camera as THREE.PerspectiveCamera;
+      const verticalFov = THREE.MathUtils.degToRad(perspective.fov || 38);
+      const aspect = Math.max(size.width / size.height, .2);
+      const padding = 4;
+      const fitDepth = (PLAN_DEPTH + padding) / (2 * Math.tan(verticalFov / 2));
+      const fitWidth = (PLAN_WIDTH + padding) / (2 * Math.tan(verticalFov / 2) * aspect);
+      camera.position.set(0, Math.max(fitDepth, fitWidth), 1.41);
+    } else {
+      camera.position.set(12.2, 11.4, 14.1);
+    }
+    camera.lookAt(0, 0, view === "2d" ? 1.4 : 0);
     camera.updateProjectionMatrix();
-  }, [camera, view]);
+  }, [camera, size.height, size.width, view]);
   return null;
 }
 
@@ -454,14 +479,20 @@ function ApplianceModel({ item }: { item: FurnitureItem }) {
   </>;
 }
 
-function FurnitureModel({ item, selected, invalid, onSelect }: { item: FurnitureItem; selected: boolean; invalid: boolean; onSelect: () => void }) {
+function FurnitureModel({ item, selected, invalid, view, onSelect }: { item: FurnitureItem; selected: boolean; invalid: boolean; view: "3d" | "2d"; onSelect: () => void }) {
   const [w, h, d] = item.size;
   return (
     <group position={item.position} rotation-y={item.rotation} onClick={(event) => { event.stopPropagation(); onSelect(); }}>
-      {selected && (
+      {selected && view === "3d" && (
         <mesh position={[0, .015 - item.position[1], 0]} rotation-x={-Math.PI / 2}>
           <ringGeometry args={[Math.max(w, d) * .55, Math.max(w, d) * .62, 48]} />
           <meshBasicMaterial color={invalid ? "#c83f3f" : "#d65a36"} transparent opacity={.86} />
+        </mesh>
+      )}
+      {selected && view === "2d" && (
+        <mesh position={[0, .014 - item.position[1], 0]} rotation-x={-Math.PI / 2}>
+          <planeGeometry args={[w + .16, d + .16]} />
+          <meshBasicMaterial color={invalid ? "#c83f3f" : "#d65a36"} transparent opacity={.18} depthWrite={false} />
         </mesh>
       )}
       {item.kind === "table" && <>
@@ -548,7 +579,7 @@ function ApartmentScene({ finish, view, items, selectedId, invalidId, onSelect, 
       <ambientLight intensity={1.5} />
       <directionalLight position={[-5, 9, 5]} intensity={2.6} castShadow shadow-mapSize={[2048, 2048]} />
       <CameraRig view={view} />
-      {view === "2d" && showReference && <ReferenceOverlay opacity={referenceOpacity} />}
+      {view === "2d" && showReference && <Suspense fallback={null}><ReferenceOverlay opacity={referenceOpacity} /></Suspense>}
       <group onClick={() => onSelect(null)}>
         {ROOMS.map((room, index) => <RoomFloor key={`${room.name}-${index}`} room={room} showLabel={view === "2d"} />)}
         <Grid args={[12.6, 12]} cellSize={.1} cellThickness={.12} cellColor="#9b8e80" sectionSize={1} sectionColor="#72675d" fadeDistance={18} fadeStrength={2} position={[0, .006, 0]} />
@@ -567,10 +598,10 @@ function ApartmentScene({ finish, view, items, selectedId, invalidId, onSelect, 
       <MasterBathFixtures />
       <CommonBathFixtures />
       <KitchenFixtures />
-      {items.map((item) => <FurnitureModel key={item.id} item={item} selected={selectedId === item.id} invalid={invalidId === item.id} onSelect={() => onSelect(item.id)} />)}
+      {items.map((item) => <FurnitureModel key={item.id} item={item} selected={selectedId === item.id} invalid={invalidId === item.id} view={view} onSelect={() => onSelect(item.id)} />)}
       <ContactShadows opacity={.28} scale={16} blur={2.3} far={4} />
       <Environment preset="apartment" environmentIntensity={.35} />
-      <OrbitControls makeDefault enableDamping target={[0, 0, 0]} maxPolarAngle={view === "2d" ? .01 : Math.PI / 2.08} minPolarAngle={view === "2d" ? 0 : .35} enableRotate={view !== "2d"} />
+      <OrbitControls key={view} makeDefault enableDamping target={[0, 0, view === "2d" ? 1.4 : 0]} maxPolarAngle={view === "2d" ? .01 : Math.PI / 2.08} minPolarAngle={view === "2d" ? 0 : .35} enableRotate={view !== "2d"} />
     </>
   );
 }
@@ -579,7 +610,7 @@ export function Studio() {
   const [view, setView] = useState<"3d" | "2d">("3d");
   const [finish, setFinish] = useState<FinishKey>("warm-white");
   const [items, setItems] = useState<FurnitureItem[]>(INITIAL_ITEMS);
-  const [selectedId, setSelectedId] = useState<string | null>("living-sofa");
+  const [selectedId, setSelectedId] = useState<string | null>(null);
   const [category, setCategory] = useState("가구");
   const [query, setQuery] = useState("");
   const [actionNotice, setActionNotice] = useState<string | null>(null);
@@ -658,7 +689,7 @@ export function Studio() {
     window.localStorage.removeItem(STORAGE_KEY);
     setItems(INITIAL_ITEMS);
     setFinish("warm-white");
-    setSelectedId("living-sofa");
+    setSelectedId(null);
     setSaved(false);
     showNotice("기획서 V4 기본 배치를 복원했어요");
   };
