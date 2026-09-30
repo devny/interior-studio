@@ -46,11 +46,11 @@ type FurnitureItem = {
   fixed?: boolean;
 };
 
-const FINISHES: Record<FinishKey, { name: string; sub: string; color: string }> = {
-  "warm-white": { name: "웜 화이트", sub: "LX 디아망 모던회벽", color: "#e8e3d7" },
-  sage: { name: "소프트 세이지", sub: "무광 친환경 페인트", color: "#aeb5a1" },
-  sand: { name: "샌드 베이지", sub: "미세 질감 벽지", color: "#cbbda6" },
-  stone: { name: "스톤 그레이", sub: "600각 포세린 타일", color: "#7f807b" },
+const FINISHES: Record<FinishKey, { name: string; sub: string; color: string; texture: string }> = {
+  "warm-white": { name: "모던 회벽 화이트", sub: "LX 디아망 · 회벽 질감", color: "#e8e3d7", texture: "/materials/wallpaper-plaster.svg" },
+  sage: { name: "소프트 세이지", sub: "무광 패브릭 벽지", color: "#aeb5a1", texture: "/materials/wallpaper-sage.svg" },
+  sand: { name: "샌드 베이지", sub: "세로 직조 질감 벽지", color: "#cbbda6", texture: "/materials/wallpaper-sand.svg" },
+  stone: { name: "웜 그레이 린넨", sub: "교차 직조 질감 벽지", color: "#babbb6", texture: "/materials/wallpaper-linen.svg" },
 };
 
 const INITIAL_ITEMS: FurnitureItem[] = [
@@ -75,11 +75,23 @@ const CATALOG = [
 
 type CatalogItem = (typeof CATALOG)[number];
 
-function Wall({ position, size, color }: { position: [number, number, number]; size: [number, number, number]; color: string }) {
+function Wall({ position, size, color, finish }: { position: [number, number, number]; size: [number, number, number]; color: string; finish?: FinishKey }) {
+  const sourceTexture = useTexture(FINISHES[finish ?? "warm-white"].texture);
+  const wallpaper = useMemo(() => {
+    const texture = sourceTexture.clone();
+    texture.wrapS = THREE.RepeatWrapping;
+    texture.wrapT = THREE.RepeatWrapping;
+    texture.repeat.set(Math.max(1, Math.max(size[0], size[2]) / .72), Math.max(1, size[1] / .72));
+    texture.colorSpace = THREE.SRGBColorSpace;
+    texture.needsUpdate = true;
+    return texture;
+  }, [sourceTexture, size[0], size[1], size[2]]);
+
+  useEffect(() => () => wallpaper.dispose(), [wallpaper]);
   return (
     <mesh position={position} castShadow receiveShadow>
       <boxGeometry args={size} />
-      <meshStandardMaterial color={color} roughness={.88} />
+      <meshStandardMaterial color={finish ? "#ffffff" : color} map={finish ? wallpaper : undefined} roughness={.92} />
     </mesh>
   );
 }
@@ -115,6 +127,19 @@ function placementIssue(item: FurnitureItem, items: FurnitureItem[]) {
       && Math.abs(item.position[2] - other.position[2]) < (current.depth + next.depth) / 2 - .04;
   });
   return collision ? "다른 제품과 겹쳐 있어요" : null;
+}
+
+function findOpenPosition(item: FurnitureItem, items: FurnitureItem[]): [number, number, number] {
+  const [startX, y, startZ] = item.position;
+  const offsets: Array<[number, number]> = [[0, 0]];
+  for (let radius = .6; radius <= 3.6; radius += .6) {
+    offsets.push([0, radius], [radius, 0], [-radius, 0], [0, -radius], [radius, radius], [-radius, radius]);
+  }
+  for (const [dx, dz] of offsets) {
+    const candidate = { ...item, position: [startX + dx, y, startZ + dz] as [number, number, number] };
+    if (!placementIssue(candidate, items)) return candidate.position;
+  }
+  return item.position;
 }
 
 type RoomSpec = { name: string; x: number; z: number; w: number; d: number; color: string; area?: string };
@@ -306,23 +331,30 @@ function FurnitureModel({ item, selected, invalid, onSelect }: { item: Furniture
       )}
       {item.kind === "table" && <>
         <RoundedBox args={[w, .1, d]} radius={.05} position={[0, h / 2 - .05, 0]} castShadow><meshStandardMaterial color={item.color} roughness={.55} /></RoundedBox>
-        {[[-w*.38, h*.22, -d*.34], [w*.38, h*.22, -d*.34], [-w*.38, h*.22, d*.34], [w*.38, h*.22, d*.34]].map((p, i) => <mesh key={i} position={p as [number, number, number]}><cylinderGeometry args={[.035, .035, h*.72, 12]} /><meshStandardMaterial color="#6c4d37" /></mesh>)}
-        <Chair position={[0, 0, -.75]} /><Chair position={[0, 0, .75]} rotation={Math.PI} />
+        {w > 1 ? <>
+          {[[-w*.38, h*.22, -d*.34], [w*.38, h*.22, -d*.34], [-w*.38, h*.22, d*.34], [w*.38, h*.22, d*.34]].map((p, i) => <mesh key={i} position={p as [number, number, number]}><cylinderGeometry args={[.035, .035, h*.72, 12]} /><meshStandardMaterial color="#6c4d37" /></mesh>)}
+          <Chair position={[0, 0, -d*.9]} /><Chair position={[0, 0, d*.9]} rotation={Math.PI} />
+        </> : <mesh position={[0, -.03, 0]}><cylinderGeometry args={[w*.16, w*.24, h*.78, 24]} /><meshStandardMaterial color="#70533d" roughness={.5} /></mesh>}
       </>}
       {item.kind === "sofa" && <>
         <RoundedBox args={[w, .42, d]} radius={.12} position={[0, -.08, 0]} castShadow><meshStandardMaterial color={item.color} roughness={.95} /></RoundedBox>
         <RoundedBox args={[w, .54, .2]} radius={.08} position={[0, .2, .34]} castShadow><meshStandardMaterial color={item.color} roughness={.95} /></RoundedBox>
         <RoundedBox args={[.16, .45, d]} radius={.06} position={[-w*.47, .05, 0]}><meshStandardMaterial color={item.color} /></RoundedBox>
         <RoundedBox args={[.16, .45, d]} radius={.06} position={[w*.47, .05, 0]}><meshStandardMaterial color={item.color} /></RoundedBox>
+        {[-.3, .3].map((ratio) => <RoundedBox key={ratio} args={[w*.43, .12, d*.58]} radius={.055} position={[w*ratio, .17, -.08]} castShadow><meshStandardMaterial color={item.color} roughness={1} /></RoundedBox>)}
+        {[-w*.4, w*.4].map((x) => <mesh key={x} position={[x, -.35, 0]}><cylinderGeometry args={[.025, .025, .18, 10]} /><meshStandardMaterial color="#645548" metalness={.3} /></mesh>)}
       </>}
       {item.kind === "bed" && <>
         <RoundedBox args={[w, .32, d]} radius={.08} position={[0, -.07, 0]} castShadow><meshStandardMaterial color={item.color} /></RoundedBox>
         <RoundedBox args={[w*.92, .18, d*.88]} radius={.09} position={[0, .14, .05]} castShadow><meshStandardMaterial color="#eee9df" /></RoundedBox>
         <RoundedBox args={[w, .9, .12]} radius={.06} position={[0, .25, d*.47]} castShadow><meshStandardMaterial color="#9f8069" /></RoundedBox>
+        <RoundedBox args={[w*.7, .07, d*.43]} radius={.035} position={[0, .27, -.13]} castShadow><meshStandardMaterial color="#d7c7b7" roughness={1} /></RoundedBox>
+        {[-.23, .23].map((ratio) => <RoundedBox key={ratio} args={[w*.38, .12, d*.2]} radius={.06} position={[w*ratio, .3, d*.28]} castShadow><meshStandardMaterial color="#faf8f2" roughness={1} /></RoundedBox>)}
       </>}
       {item.kind === "shelf" && <>
         <mesh castShadow><boxGeometry args={[w, h, d]} /><meshStandardMaterial color={item.color} /></mesh>
         {[.15, .48, .81].map((ratio) => <mesh key={ratio} position={[0, -h/2 + h*ratio, -d*.52]}><boxGeometry args={[w*.92, .035, .04]} /><meshStandardMaterial color="#caa77f" /></mesh>)}
+        {[-.32, 0, .32].map((ratio) => <mesh key={ratio} position={[w*ratio, 0, -d*.525]}><boxGeometry args={[.025, h*.92, .035]} /><meshStandardMaterial color="#a98261" /></mesh>)}
       </>}
       {item.kind === "island" && <>
         <RoundedBox args={[w, h, d]} radius={.045} castShadow><meshStandardMaterial color={item.color} roughness={.68} /></RoundedBox>
@@ -362,7 +394,7 @@ function ApartmentScene({ finish, view, items, selectedId, invalidId, onSelect, 
         <Grid args={[12.6, 12]} cellSize={.1} cellThickness={.12} cellColor="#9b8e80" sectionSize={1} sectionColor="#72675d" fadeDistance={18} fadeStrength={2} position={[0, .006, 0]} />
         {WALLS.map((segment, index) => {
           const height = segment.height ?? 2.3;
-          return <Wall key={index} position={[planX(segment.x), segment.y ?? height / 2, planZ(segment.z)]} size={[segment.w, height, segment.d]} color={segment.material === "glass" ? "#b9d1d3" : wall} />;
+          return <Wall key={index} position={[planX(segment.x), segment.y ?? height / 2, planZ(segment.z)]} size={[segment.w, height, segment.d]} color={segment.material === "glass" ? "#b9d1d3" : wall} finish={segment.material === "glass" ? undefined : finish} />;
         })}
       </group>
       <DoorOpening x={.15} z={4.53} axis="horizontal" width={1.05} rotation={0} wallColor={wall} />
@@ -388,10 +420,12 @@ export function Studio() {
   const [selectedId, setSelectedId] = useState<string | null>("dining");
   const [category, setCategory] = useState("가구");
   const [query, setQuery] = useState("");
+  const [actionNotice, setActionNotice] = useState<string | null>(null);
   const [saved, setSaved] = useState(false);
   const [showReference, setShowReference] = useState(false);
   const [referenceOpacity, setReferenceOpacity] = useState(.52);
   const catalogSequence = useRef(0);
+  const noticeTimer = useRef<number | null>(null);
   const selected = useMemo(() => items.find((item) => item.id === selectedId) ?? null, [items, selectedId]);
   const selectedIssue = useMemo(() => selected ? placementIssue(selected, items) : null, [selected, items]);
   const filteredCatalog = useMemo(() => {
@@ -417,12 +451,18 @@ export function Studio() {
     updateSelected({ position: [selected.position[0] + dx, selected.position[1], selected.position[2] + dz] });
   };
 
+  const showNotice = (message: string) => {
+    setActionNotice(message);
+    if (noticeTimer.current) window.clearTimeout(noticeTimer.current);
+    noticeTimer.current = window.setTimeout(() => setActionNotice(null), 2200);
+  };
+
   const addCatalogItem = (product: CatalogItem) => {
     let nextSequence = catalogSequence.current + 1;
     while (items.some((item) => item.id === `${product.id}-${nextSequence}`)) nextSequence += 1;
     catalogSequence.current = nextSequence;
     const id = `${product.id}-${nextSequence}`;
-    const next: FurnitureItem = {
+    const draft: FurnitureItem = {
       id,
       name: product.title,
       room: product.room,
@@ -432,9 +472,11 @@ export function Studio() {
       rotation: 0,
       color: product.color,
     };
+    const next: FurnitureItem = { ...draft, position: findOpenPosition(draft, items) };
     setItems((current) => [...current, next]);
     setSelectedId(id);
     setSaved(false);
+    showNotice(`${product.title}을(를) 빈 공간에 배치했어요`);
   };
 
   const deleteSelected = () => {
@@ -463,10 +505,10 @@ export function Studio() {
           <div className="panel-heading"><div><span className="eyebrow">LIBRARY</span><h1>공간 채우기</h1></div><button className="bare-icon" aria-label="패널 닫기"><PanelLeftClose size={19} /></button></div>
           <label className="search"><Search size={16} /><input aria-label="제품 검색" placeholder="가구, 가전, 조명 검색" value={query} onChange={(event) => setQuery(event.target.value)} /></label>
           <nav className="category-tabs" aria-label="제품 카테고리">
-            {[{name:"가구",icon:Sofa},{name:"마감재",icon:Grid2X2},{name:"가전",icon:PackageOpen},{name:"조명",icon:LampCeiling}].map(({ name, icon: Icon }) => <button key={name} className={category === name ? "active" : ""} onClick={() => setCategory(name)}><Icon size={18} /><span>{name}</span></button>)}
+            {[{name:"가구",icon:Sofa},{name:"벽지",icon:Grid2X2},{name:"가전",icon:PackageOpen},{name:"조명",icon:LampCeiling}].map(({ name, icon: Icon }) => <button key={name} className={category === name ? "active" : ""} onClick={() => setCategory(name)}><Icon size={18} /><span>{name}</span></button>)}
           </nav>
-          {category === "마감재" ? <div className="finish-list"><div className="section-label">벽 마감 · 4</div>{(Object.entries(FINISHES) as [FinishKey, typeof FINISHES[FinishKey]][]).map(([key, item]) => <button key={key} className={`finish-card ${finish === key ? "selected" : ""}`} onClick={() => { setFinish(key); setSaved(false); }}><span className="finish-swatch" style={{background:item.color}} /><span><strong>{item.name}</strong><small>{item.sub}</small></span>{finish === key && <Sparkles size={16} />}</button>)}</div> : <div className="catalog"><div className="catalog-header"><span className="section-label">추천 {category} · {filteredCatalog.length}</span><span className="catalog-hint">눌러서 배치</span></div><div className="catalog-grid">{filteredCatalog.map(({icon:Icon,...item}) => <button className="product-card" key={item.id} onClick={() => addCatalogItem({ icon: Icon, ...item })}><span className="product-visual" style={{background:`linear-gradient(145deg, ${item.color}, #ece7dd)`}}><Icon size={40} strokeWidth={1.2} /><span className="add-product"><Plus size={13} /></span></span><strong>{item.title}</strong><small>{item.meta}</small></button>)}{filteredCatalog.length === 0 && <div className="catalog-empty">검색 결과가 없어요</div>}</div></div>}
-          <div className="accuracy-note"><Maximize2 size={17} /><div><strong>실측 전 초안</strong><span>평면 구조와 가구 규격을 먼저 검토하고 있어요.</span></div></div>
+          {category === "벽지" ? <div className="finish-list"><div className="section-label">전체 벽지 · 4</div>{(Object.entries(FINISHES) as [FinishKey, typeof FINISHES[FinishKey]][]).map(([key, item]) => <button key={key} className={`finish-card ${finish === key ? "selected" : ""}`} onClick={() => { setFinish(key); setSaved(false); showNotice(`${item.name} 벽지를 전체 벽에 적용했어요`); }}><span className="finish-swatch wallpaper" style={{backgroundImage:`url(${item.texture})`,backgroundColor:item.color}} /><span><strong>{item.name}</strong><small>{item.sub}</small></span>{finish === key && <Sparkles size={16} />}</button>)}</div> : <div className="catalog"><div className="catalog-header"><span className="section-label">추천 {category} · {filteredCatalog.length}</span><span className="catalog-hint">눌러서 배치</span></div><div className="catalog-grid">{filteredCatalog.map(({icon:Icon,...item}) => <button className="product-card" key={item.id} onClick={() => addCatalogItem({ icon: Icon, ...item })}><span className="product-visual" style={{background:`linear-gradient(145deg, ${item.color}, #ece7dd)`}}><Icon size={40} strokeWidth={1.2} /><span className="add-product"><Plus size={13} /></span></span><strong>{item.title}</strong><small>{item.meta}</small></button>)}{filteredCatalog.length === 0 && <div className="catalog-empty">검색 결과가 없어요</div>}</div></div>}
+          <div className="accuracy-note"><Maximize2 size={17} /><div><strong>실측 도면 기준</strong><span>제품은 실제 규격 비율로 배치돼요.</span></div></div>
         </aside>
 
         <section className="canvas-area">
@@ -480,6 +522,8 @@ export function Studio() {
             <Suspense fallback={null}><ApartmentScene finish={finish} view={view} items={items} selectedId={selectedId} invalidId={selectedIssue ? selectedId : null} onSelect={setSelectedId} showReference={showReference} referenceOpacity={referenceOpacity} /></Suspense>
           </Canvas>
           <div className="orientation"><span>N</span><div /></div>
+          {actionNotice && <div className="action-notice"><Sparkles size={14} />{actionNotice}</div>}
+          {selected && <div className={`selection-summary ${selectedIssue ? "invalid" : ""}`}><strong>{selected.name}</strong><span>{selectedIssue ?? `${Math.round(selected.size[0]*1000)} × ${Math.round(selected.size[2]*1000)} mm · 배치됨`}</span></div>}
           <div className="canvas-help"><Move3D size={15} /> 드래그로 둘러보고, 스크롤로 확대하세요</div>
           <div className="room-legend"><span><i style={{background:"#b89973"}} />거실 4,700</span><span><i style={{background:"#ddd1bc"}} />침실 2,900</span><span><i style={{background:"#d9cdb8"}} />안방 4,100</span></div>
         </section>
