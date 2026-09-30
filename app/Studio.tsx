@@ -1,6 +1,6 @@
 "use client";
 
-import { Canvas } from "@react-three/fiber";
+import { Canvas, useThree } from "@react-three/fiber";
 import { ContactShadows, Environment, Grid, Html, OrbitControls, RoundedBox } from "@react-three/drei";
 import {
   Armchair,
@@ -52,11 +52,11 @@ const FINISHES: Record<FinishKey, { name: string; sub: string; color: string }> 
 };
 
 const INITIAL_ITEMS: FurnitureItem[] = [
-  { id: "dining", name: "라메리트 식탁", room: "거실 확장부", kind: "table", size: [1.8, .76, .95], position: [-3.05, .38, -2.2], rotation: 0, color: "#a7754b" },
-  { id: "sofa", name: "패브릭 소파", room: "거실", kind: "sofa", size: [2.6, .78, .92], position: [-2.45, .39, .42], rotation: Math.PI / 2, color: "#b4aa98" },
-  { id: "bed", name: "라메리트 침대", room: "안방", kind: "bed", size: [1.68, .46, 2.12], position: [2.55, .23, -1.8], rotation: 0, color: "#b49a7f" },
-  { id: "shelf", name: "보유 책장 세트", room: "서재", kind: "shelf", size: [1.8, 2.05, .34], position: [2.93, 1.03, 1.5], rotation: Math.PI / 2, color: "#7a5b44" },
-  { id: "island", name: "키친핏 주방", room: "주방", kind: "island", size: [2.75, .9, .64], position: [-.18, .45, 2.15], rotation: 0, color: "#d4cfc3", fixed: true },
+  { id: "dining", name: "라메리트 식탁", room: "거실 확장부", kind: "table", size: [1.8, .76, .95], position: [-.8, .38, 4.14], rotation: 0, color: "#a7754b" },
+  { id: "sofa", name: "패브릭 소파", room: "거실", kind: "sofa", size: [2.6, .78, .92], position: [-1.05, .39, 1.55], rotation: 0, color: "#b4aa98" },
+  { id: "bed", name: "라메리트 침대", room: "안방", kind: "bed", size: [1.68, .46, 2.12], position: [3.72, .23, 2.65], rotation: 0, color: "#b49a7f" },
+  { id: "shelf", name: "보유 책장 세트", room: "서재", kind: "shelf", size: [1.8, 2.05, .34], position: [-4.48, 1.03, 1.27], rotation: Math.PI / 2, color: "#7a5b44" },
+  { id: "island", name: "키친핏 주방", room: "주방/식당", kind: "island", size: [2.4, .9, .64], position: [.85, .45, -2.0], rotation: 0, color: "#d4cfc3", fixed: true },
 ];
 
 const CATALOG = [
@@ -73,6 +73,51 @@ function Wall({ position, size, color }: { position: [number, number, number]; s
       <meshStandardMaterial color={color} roughness={.88} />
     </mesh>
   );
+}
+
+const PLAN_WIDTH = 11.7;
+const PLAN_DEPTH = 10.07;
+const planX = (value: number) => value - PLAN_WIDTH / 2;
+const planZ = (value: number) => value - PLAN_DEPTH / 2;
+
+type RoomSpec = { name: string; x: number; z: number; w: number; d: number; color: string; area?: string };
+
+const ROOMS: RoomSpec[] = [
+  { name: "침실 9.52", x: 1.45, z: 6.71, w: 2.9, d: 3.53, color: "#ddd1bc" },
+  { name: "거실 27.47", x: 5.25, z: 6.45, w: 4.7, d: 4.04, color: "#b89973" },
+  { name: "안방 14.71", x: 9.65, z: 7.86, w: 4.1, d: 3.83, color: "#d9cdb8" },
+  { name: "침실 9.45", x: 9.95, z: 2.97, w: 3.5, d: 2.93, color: "#ded3bd" },
+  { name: "주방/식당 9.49", x: 6.8, z: 2.97, w: 2.8, d: 2.93, color: "#aa916b" },
+  { name: "공용욕실", x: 4.4, z: 3.27, w: 2.0, d: 2.32, color: "#8d918e" },
+  { name: "안방욕실", x: 9.05, z: 5.18, w: 1.7, d: 1.45, color: "#858a87" },
+  { name: "현관", x: 1.25, z: 4.44, w: 2.5, d: 1.18, color: "#c8c7bf" },
+  { name: "침실 발코니", x: 1.45, z: 9.27, w: 2.9, d: 1.6, color: "#d8d4ca" },
+  { name: "거실 확장부", x: 5.25, z: 9.27, w: 4.7, d: 1.6, color: "#c6aa83" },
+  { name: "안방 발코니", x: 9.65, z: 9.92, w: 4.1, d: .3, color: "#d8d4ca" },
+  { name: "주방 발코니", x: 6.8, z: .75, w: 2.8, d: 1.5, color: "#d8d4ca" },
+  { name: "침실 발코니", x: 9.95, z: .75, w: 3.5, d: 1.5, color: "#d8d4ca" },
+];
+
+function RoomFloor({ room, showLabel }: { room: RoomSpec; showLabel: boolean }) {
+  return (
+    <group>
+      <mesh rotation-x={-Math.PI / 2} receiveShadow position={[planX(room.x), 0, planZ(room.z)]}>
+        <planeGeometry args={[room.w - .04, room.d - .04]} />
+        <meshStandardMaterial color={room.color} roughness={.84} />
+      </mesh>
+      {showLabel && <Html position={[planX(room.x), .05, planZ(room.z)]} center className="room-label">{room.name}</Html>}
+    </group>
+  );
+}
+
+function CameraRig({ view }: { view: "3d" | "2d" }) {
+  const { camera } = useThree();
+  useEffect(() => {
+    camera.position.set(view === "2d" ? 0 : 11.6, view === "2d" ? 16 : 10.8, view === "2d" ? .01 : 13.2);
+    camera.lookAt(0, 0, 0);
+    camera.updateProjectionMatrix();
+  }, [camera, view]);
+  return null;
 }
 
 function Chair({ position, rotation = 0 }: { position: [number, number, number]; rotation?: number }) {
@@ -128,28 +173,41 @@ function FurnitureModel({ item, selected, onSelect }: { item: FurnitureItem; sel
 
 function ApartmentScene({ finish, view, items, selectedId, onSelect }: { finish: FinishKey; view: "3d" | "2d"; items: FurnitureItem[]; selectedId: string | null; onSelect: (id: string | null) => void }) {
   const wall = FINISHES[finish].color;
-  const floorColor = finish === "stone" ? "#a6a49d" : "#b89973";
+  const walls = [
+    // 외곽 벽체 — 도면의 현관 왼쪽 방향을 그대로 사용
+    { x: 0, z: 6.71, w: .14, d: 6.72 }, { x: 11.7, z: 5.04, w: .14, d: 10.07 },
+    { x: 5.85, z: 10.07, w: 11.7, d: .14 }, { x: 9.95, z: 0, w: 3.5, d: .14 },
+    { x: 6.8, z: 0, w: 2.8, d: .14 }, { x: 1.25, z: 3.85, w: 2.5, d: .14 },
+    // 주요 실 구획
+    { x: 2.9, z: 7.23, w: .12, d: 2.48 }, { x: 2.9, z: 4.72, w: .12, d: .56 },
+    { x: 7.6, z: 7.99, w: .12, d: 3.56 }, { x: 7.6, z: 4.78, w: .12, d: .7 },
+    { x: 1.45, z: 4.95, w: 2.9, d: .12 }, { x: 1.45, z: 8.47, w: 2.9, d: .12 },
+    { x: 5.25, z: 8.47, w: 4.7, d: .12 }, { x: 9.65, z: 9.77, w: 4.1, d: .12 },
+    { x: 9.95, z: 1.5, w: 3.5, d: .12 }, { x: 6.8, z: 1.5, w: 2.8, d: .12 },
+    { x: 8.2, z: 2.97, w: .12, d: 2.93 }, { x: 9.95, z: 4.43, w: 3.5, d: .12 },
+    { x: 6.7, z: 4.43, w: 2.6, d: .12 },
+    // 공용욕실과 안방 소형욕실
+    { x: 3.4, z: 3.27, w: .12, d: 2.32 }, { x: 5.4, z: 2.72, w: .12, d: 1.22 },
+    { x: 4.4, z: 2.11, w: 2.0, d: .12 }, { x: 4.4, z: 4.43, w: 2.0, d: .12 },
+    { x: 8.2, z: 5.18, w: .12, d: 1.45 }, { x: 9.9, z: 5.18, w: .12, d: 1.45 },
+    { x: 9.05, z: 5.93, w: 1.7, d: .12 },
+  ];
   return (
     <>
       <color attach="background" args={["#eceae4"]} />
       <ambientLight intensity={1.5} />
       <directionalLight position={[-5, 9, 5]} intensity={2.6} castShadow shadow-mapSize={[2048, 2048]} />
+      <CameraRig view={view} />
       <group onClick={() => onSelect(null)}>
-        <mesh rotation-x={-Math.PI / 2} receiveShadow position={[0, -.02, 0]}><planeGeometry args={[8.2, 6.6]} /><meshStandardMaterial color={floorColor} roughness={.8} /></mesh>
-        <Grid args={[8.2, 6.6]} cellSize={.25} cellThickness={.25} cellColor="#725c49" sectionSize={1} sectionColor="#8b725c" fadeDistance={14} fadeStrength={2} position={[0, 0, 0]} />
-        <Wall position={[0, 1.15, 3.25]} size={[8.2, 2.3, .12]} color={wall} />
-        <Wall position={[4.05, 1.15, 0]} size={[.12, 2.3, 6.6]} color={wall} />
-        <Wall position={[-4.05, 1.15, 1.25]} size={[.12, 2.3, 4.1]} color={wall} />
-        <Wall position={[-4.05, .45, -2.72]} size={[.12, .9, 1.05]} color="#dfe7e8" />
-        <Wall position={[1.12, 1.15, -.85]} size={[.1, 2.3, 4.1]} color={wall} />
-        <Wall position={[2.57, 1.15, .75]} size={[2.9, 2.3, .1]} color={wall} />
-        <Wall position={[2.57, 1.15, -3.22]} size={[2.9, 2.3, .1]} color={wall} />
-        <Wall position={[.05, 1.15, 1.12]} size={[2.05, 2.3, .1]} color={wall} />
-        <Wall position={[-1.5, .58, -3.22]} size={[5.05, 1.16, .08]} color="#d6e1e1" />
-        <mesh position={[-1.5, 1.66, -3.25]}><boxGeometry args={[5.02, .06, .04]} /><meshStandardMaterial color="#bfd2d4" transparent opacity={.55} /></mesh>
+        {ROOMS.map((room, index) => <RoomFloor key={`${room.name}-${index}`} room={room} showLabel={view === "2d"} />)}
+        <Grid args={[12.6, 11]} cellSize={.1} cellThickness={.12} cellColor="#9b8e80" sectionSize={1} sectionColor="#72675d" fadeDistance={18} fadeStrength={2} position={[0, .006, 0]} />
+        {walls.map((segment, index) => <Wall key={index} position={[planX(segment.x), 1.15, planZ(segment.z)]} size={[segment.w, 2.3, segment.d]} color={wall} />)}
+        <Wall position={[planX(1.45), .55, planZ(10.02)]} size={[2.8, 1.1, .08]} color="#d7e2e2" />
+        <Wall position={[planX(5.25), .55, planZ(10.02)]} size={[4.6, 1.1, .08]} color="#d7e2e2" />
+        <Wall position={[planX(9.65), .55, planZ(10.02)]} size={[4, 1.1, .08]} color="#d7e2e2" />
       </group>
       {items.map((item) => <FurnitureModel key={item.id} item={item} selected={selectedId === item.id} onSelect={() => onSelect(item.id)} />)}
-      <ContactShadows opacity={.28} scale={12} blur={2.3} far={4} />
+      <ContactShadows opacity={.28} scale={16} blur={2.3} far={4} />
       <Environment preset="apartment" environmentIntensity={.35} />
       <OrbitControls makeDefault enableDamping target={[0, 0, 0]} maxPolarAngle={view === "2d" ? .01 : Math.PI / 2.08} minPolarAngle={view === "2d" ? 0 : .35} enableRotate={view !== "2d"} />
     </>
@@ -166,7 +224,7 @@ export function Studio() {
   const selected = useMemo(() => items.find((item) => item.id === selectedId) ?? null, [items, selectedId]);
 
   useEffect(() => {
-    const stored = window.localStorage.getItem("sanghyeon-studio-v1");
+    const stored = window.localStorage.getItem("sanghyeon-studio-v2-floorplan");
     if (stored) {
       try { const data = JSON.parse(stored); setItems(data.items ?? INITIAL_ITEMS); setFinish(data.finish ?? "warm-white"); } catch { /* ignore invalid local draft */ }
     }
@@ -184,7 +242,7 @@ export function Studio() {
   };
 
   const save = () => {
-    window.localStorage.setItem("sanghyeon-studio-v1", JSON.stringify({ items, finish }));
+    window.localStorage.setItem("sanghyeon-studio-v2-floorplan", JSON.stringify({ items, finish }));
     setSaved(true);
     window.setTimeout(() => setSaved(false), 1800);
   };
@@ -209,14 +267,14 @@ export function Studio() {
         </aside>
 
         <section className="canvas-area">
-          <div className="room-bar"><span className="eyebrow">CURRENT SPACE</span><strong>전체 공간</strong><span>전용 84.98㎡</span><span className="draft-badge">좌우 반전형</span></div>
+          <div className="room-bar"><span className="eyebrow">DRAWING MODEL</span><strong>109㎡ 기본형</strong><span>전용 76.33㎡</span><span className="draft-badge">현관 왼쪽 · 원본 방향</span></div>
           <div className="view-switch"><button className={view === "2d" ? "active" : ""} onClick={() => setView("2d")}><Grid2X2 size={15} /> 2D</button><button className={view === "3d" ? "active" : ""} onClick={() => setView("3d")}><Layers3 size={15} /> 3D</button></div>
-          <Canvas shadows dpr={[1, 1.65]} camera={{ position: view === "2d" ? [0, 12, .01] : [8.2, 7.4, 9.5], fov: 38 }}>
+          <Canvas shadows dpr={[1, 1.65]} camera={{ position: [11.6, 10.8, 13.2], fov: 38 }}>
             <Suspense fallback={null}><ApartmentScene finish={finish} view={view} items={items} selectedId={selectedId} onSelect={setSelectedId} /></Suspense>
           </Canvas>
           <div className="orientation"><span>N</span><div /></div>
           <div className="canvas-help"><Move3D size={15} /> 드래그로 둘러보고, 스크롤로 확대하세요</div>
-          <div className="room-legend"><span><i style={{background:"#b89973"}} />거실 · 확장부</span><span><i style={{background:"#ddd1bc"}} />안방</span><span><i style={{background:"#aeb5a1"}} />주방</span></div>
+          <div className="room-legend"><span><i style={{background:"#b89973"}} />거실 4,700</span><span><i style={{background:"#ddd1bc"}} />침실 2,900</span><span><i style={{background:"#d9cdb8"}} />안방 4,100</span></div>
         </section>
 
         <aside className="property-panel">
@@ -227,7 +285,7 @@ export function Studio() {
             <div className="property-section"><div className="property-heading"><span>배치 상태</span></div><div className="placement-ok"><span>✓</span><div><strong>배치 가능한 위치</strong><small>현재 다른 가구와 겹치지 않아요</small></div></div></div>
             <div className="property-section surface"><div className="property-heading"><span>소재</span></div><div className="material-chip"><span style={{background:selected.color}} /><div><strong>기존 제품 마감</strong><small>보유 가구 · 변경 없음</small></div></div></div>
           </> : <div className="empty-selection"><div><Move3D size={24} /></div><h2>가구를 선택해보세요</h2><p>크기와 위치를 확인하고<br/>정확하게 배치할 수 있어요.</p></div>}
-          <div className="plan-facts"><span className="eyebrow">CONFIRMED PLAN</span><ul><li><span>01</span>현관은 왼쪽</li><li><span>02</span>식탁은 거실 확장부</li><li><span>03</span>안방 욕실은 소형 구조 유지</li></ul></div>
+          <div className="plan-facts"><span className="eyebrow">DRAWING FACTS</span><ul><li><span>01</span>현관 왼쪽 · 원본 도면 방향</li><li><span>02</span>거실 4,700 · 전면 발코니 1,600</li><li><span>03</span>안방 욕실은 변기·세면대 구성</li></ul></div>
         </aside>
       </section>
     </main>
