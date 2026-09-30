@@ -89,7 +89,7 @@ const ROOMS: RoomSpec[] = [
   { name: "침실 9.45", x: 9.95, z: 2.97, w: 3.5, d: 2.93, color: "#ded3bd" },
   { name: "주방/식당 9.49", x: 6.8, z: 2.97, w: 2.8, d: 2.93, color: "#aa916b" },
   { name: "공용욕실", x: 4.4, z: 3.27, w: 2.0, d: 2.32, color: "#8d918e" },
-  { name: "안방욕실", x: 9.05, z: 5.18, w: 1.7, d: 1.45, color: "#858a87" },
+  { name: "안방욕실", x: 9.93, z: 5.18, w: 1.85, d: 1.5, color: "#858a87" },
   { name: "현관", x: 1.25, z: 4.44, w: 2.5, d: 1.18, color: "#c8c7bf" },
   { name: "침실 발코니", x: 1.45, z: 9.27, w: 2.9, d: 1.6, color: "#d8d4ca" },
   { name: "거실 확장부", x: 5.25, z: 9.27, w: 4.7, d: 1.6, color: "#c6aa83" },
@@ -118,6 +118,34 @@ function CameraRig({ view }: { view: "3d" | "2d" }) {
     camera.updateProjectionMatrix();
   }, [camera, view]);
   return null;
+}
+
+function Door({ x, z, rotation = 0 }: { x: number; z: number; rotation?: number }) {
+  return (
+    <group position={[planX(x), 1, planZ(z)]} rotation-y={rotation}>
+      <mesh castShadow position={[.36, 0, 0]}>
+        <boxGeometry args={[.76, 2, .045]} />
+        <meshStandardMaterial color="#9d7655" roughness={.72} />
+      </mesh>
+      <mesh position={[.7, 0, .038]}>
+        <sphereGeometry args={[.035, 10, 10]} />
+        <meshStandardMaterial color="#6f6557" metalness={.65} roughness={.25} />
+      </mesh>
+    </group>
+  );
+}
+
+function MasterBathFixtures() {
+  return (
+    <group>
+      <RoundedBox args={[.56, .42, .72]} radius={.14} position={[planX(10.45), .22, planZ(5.16)]} castShadow>
+        <meshStandardMaterial color="#f2f0ea" roughness={.28} />
+      </RoundedBox>
+      <RoundedBox args={[.52, .12, .38]} radius={.09} position={[planX(9.42), .78, planZ(4.72)]} castShadow>
+        <meshStandardMaterial color="#f4f2ed" roughness={.24} />
+      </RoundedBox>
+    </group>
+  );
 }
 
 function Chair({ position, rotation = 0 }: { position: [number, number, number]; rotation?: number }) {
@@ -179,18 +207,22 @@ function ApartmentScene({ finish, view, items, selectedId, onSelect }: { finish:
     { x: 5.85, z: 10.07, w: 11.7, d: .14 }, { x: 9.95, z: 0, w: 3.5, d: .14 },
     { x: 6.8, z: 0, w: 2.8, d: .14 }, { x: 1.25, z: 3.85, w: 2.5, d: .14 },
     // 주요 실 구획
-    { x: 2.9, z: 7.23, w: .12, d: 2.48 }, { x: 2.9, z: 4.72, w: .12, d: .56 },
-    { x: 7.6, z: 7.99, w: .12, d: 3.56 }, { x: 7.6, z: 4.78, w: .12, d: .7 },
-    { x: 1.45, z: 4.95, w: 2.9, d: .12 }, { x: 1.45, z: 8.47, w: 2.9, d: .12 },
+    { x: 2.9, z: 7.23, w: .12, d: 2.48 }, { x: 2.9, z: 5.22, w: .12, d: .56 },
+    { x: 7.6, z: 6.28, w: .12, d: .68 }, { x: 7.6, z: 8.66, w: .12, d: 2.22 },
+    { x: .98, z: 4.95, w: 1.96, d: .12 }, { x: 2.82, z: 4.95, w: .16, d: .12 },
+    { x: 1.45, z: 8.47, w: 2.9, d: .12 },
     { x: 5.25, z: 8.47, w: 4.7, d: .12 }, { x: 9.65, z: 9.77, w: 4.1, d: .12 },
     { x: 9.95, z: 1.5, w: 3.5, d: .12 }, { x: 6.8, z: 1.5, w: 2.8, d: .12 },
-    { x: 8.2, z: 2.97, w: .12, d: 2.93 }, { x: 9.95, z: 4.43, w: 3.5, d: .12 },
+    { x: 8.2, z: 2.97, w: .12, d: 2.93 },
+    { x: 8.37, z: 4.43, w: .34, d: .12 }, { x: 10.53, z: 4.43, w: 2.34, d: .12 },
     { x: 6.7, z: 4.43, w: 2.6, d: .12 },
     // 공용욕실과 안방 소형욕실
     { x: 3.4, z: 3.27, w: .12, d: 2.32 }, { x: 5.4, z: 2.72, w: .12, d: 1.22 },
-    { x: 4.4, z: 2.11, w: 2.0, d: .12 }, { x: 4.4, z: 4.43, w: 2.0, d: .12 },
-    { x: 8.2, z: 5.18, w: .12, d: 1.45 }, { x: 9.9, z: 5.18, w: .12, d: 1.45 },
-    { x: 9.05, z: 5.93, w: 1.7, d: .12 },
+    { x: 4.4, z: 2.11, w: 2.0, d: .12 },
+    { x: 3.47, z: 4.43, w: .14, d: .12 }, { x: 4.88, z: 4.43, w: 1.04, d: .12 },
+    { x: 9.0, z: 5.18, w: .12, d: 1.5 }, { x: 10.85, z: 5.18, w: .12, d: 1.5 },
+    { x: 9.05, z: 5.93, w: .1, d: .12 }, { x: 10.38, z: 5.93, w: .95, d: .12 },
+    { x: 11.27, z: 5.18, w: .78, d: .12 },
   ];
   return (
     <>
@@ -206,6 +238,12 @@ function ApartmentScene({ finish, view, items, selectedId, onSelect }: { finish:
         <Wall position={[planX(5.25), .55, planZ(10.02)]} size={[4.6, 1.1, .08]} color="#d7e2e2" />
         <Wall position={[planX(9.65), .55, planZ(10.02)]} size={[4, 1.1, .08]} color="#d7e2e2" />
       </group>
+      <Door x={2.05} z={4.95} rotation={Math.PI / 2.8} />
+      <Door x={3.55} z={4.43} rotation={Math.PI / 2.8} />
+      <Door x={8.55} z={4.43} rotation={-Math.PI / 2.8} />
+      <Door x={7.6} z={6.65} rotation={Math.PI / 2.8} />
+      <Door x={9.1} z={5.93} rotation={Math.PI / 2.8} />
+      <MasterBathFixtures />
       {items.map((item) => <FurnitureModel key={item.id} item={item} selected={selectedId === item.id} onSelect={() => onSelect(item.id)} />)}
       <ContactShadows opacity={.28} scale={16} blur={2.3} far={4} />
       <Environment preset="apartment" environmentIntensity={.35} />
