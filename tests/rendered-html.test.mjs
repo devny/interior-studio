@@ -32,8 +32,9 @@ test("keeps the projectbook products and room plan in source", async () => {
   const studio = await readFile(new URL("../app/Studio.tsx", import.meta.url), "utf8");
   for (const expected of [
     "자코모 휘몰라 네이비 소파",
-    "라메리트 페닉스 타원 식탁",
+    "라메리트 바움오크 페닉스 오벌 식탁",
     "LG OLED77C9KW 77형",
+    "LG 오브제 컨버터블 냉장전용고",
     "밀레 식기세척기",
     "디트리쉬 DPI7686GP 인덕션",
     "LG 미니와인셀러 W087B",
