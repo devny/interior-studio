@@ -90,14 +90,14 @@ const INITIAL_ITEMS: FurnitureItem[] = [
   { id: "office-ac", name: "작업방 시스템에어컨", room: "부부 작업방", kind: "ceiling", size: [.75, .05, .34], position: [-4.35, 2.25, 4.15], rotation: 0, color: "#f0f0eb", fixed: true },
 
   // 주방 — 식탁 없음, 보유 가전과 교체 예정 냉장고장
-  { id: "island", name: "조리·수납 아일랜드", room: "주방", kind: "island", size: [2.35, .9, .7], position: [.55, .45, -2.15], rotation: 0, color: "#d4cfc3", fixed: true },
-  // 북측 발코니 출입 폭(좌측)을 비우고 우측 1.6m 벽체 안에 냉장고장을 맞춘다.
-  { id: "fridge", name: "LG 오브제 컨버터블 냉장전용고", room: "주방 · 맞춤 냉장고장", kind: "appliance", size: [.595, 1.86, .67], position: [1.24, .93, -3.56], rotation: 0, color: "#e5e2da", fixed: true },
-  { id: "kimchi-fridge", name: "LG 오브제 컨버터블 김치냉장고", room: "주방 · 맞춤 냉장고장", kind: "appliance", size: [.595, 1.86, .67], position: [1.87, .93, -3.56], rotation: 0, color: "#ddd9d0", fixed: true },
-  // 아일랜드는 왼쪽부터 와인셀러·싱크/식세기·조리대로 구획한다.
-  { id: "dishwasher", name: "밀레 식기세척기", room: "주방", kind: "appliance", size: [.598, .805, .57], position: [0, .4025, -2.15], rotation: 0, color: "#c8c9c6", fixed: true, integrated: true },
-  { id: "induction", name: "디트리쉬 DPI7686GP 인덕션", room: "주방", kind: "appliance", size: [.65, .04, .515], position: [.72, .93, -2.15], rotation: 0, color: "#252726", fixed: true, integrated: true },
-  { id: "wine-cellar", name: "LG 미니와인셀러 W087B", room: "주방", kind: "appliance", size: [.282, .534, .497], position: [-.46, .267, -2.15], rotation: 0, color: "#393b39", fixed: true, integrated: true },
+  { id: "island", name: "조리·수납 아일랜드", room: "주방", kind: "island", size: [1.45, .9, .85], position: [1, .45, -2.15], rotation: 0, color: "#d4cfc3", fixed: true },
+  // 시공 사례처럼 냉장고장은 욕실측 벽에 세우고 발코니 출입구를 완전히 비운다.
+  { id: "fridge", name: "LG 오브제 컨버터블 냉장전용고", room: "주방 · 측벽 맞춤 냉장고장", kind: "appliance", size: [.595, 1.86, .67], position: [-.81, .93, -1.53], rotation: Math.PI / 2, color: "#e5e2da", fixed: true },
+  { id: "kimchi-fridge", name: "LG 오브제 컨버터블 김치냉장고", room: "주방 · 측벽 맞춤 냉장고장", kind: "appliance", size: [.595, 1.86, .67], position: [-.81, .93, -2.16], rotation: Math.PI / 2, color: "#ddd9d0", fixed: true },
+  // 싱크·식기세척기는 후면 벽으로, 인덕션·와인셀러만 아일랜드에 둔다.
+  { id: "dishwasher", name: "밀레 식기세척기", room: "주방 · 후면 싱크장", kind: "appliance", size: [.598, .805, .57], position: [1.8, .4025, -3.59], rotation: 0, color: "#c8c9c6", fixed: true, integrated: true },
+  { id: "induction", name: "디트리쉬 DPI7686GP 인덕션", room: "주방", kind: "appliance", size: [.65, .04, .515], position: [1.15, .93, -2.15], rotation: 0, color: "#252726", fixed: true, integrated: true },
+  { id: "wine-cellar", name: "LG 미니와인셀러 W087B", room: "주방", kind: "appliance", size: [.282, .534, .497], position: [.45, .267, -2.15], rotation: 0, color: "#393b39", fixed: true, integrated: true },
   { id: "bath1-vent", name: "힘펠 휴젠뜨3", room: "공용욕실", kind: "ceiling", size: [.45, .055, .45], position: [-2.1, 2.25, -3.25], rotation: 0, color: "#e6e5df", fixed: true },
   { id: "bath2-vent", name: "힘펠 휴젠뜨3", room: "안방욕실", kind: "ceiling", size: [.45, .055, .45], position: [4.85, 2.25, -.25], rotation: 0, color: "#e6e5df", fixed: true },
 
@@ -107,7 +107,7 @@ const INITIAL_ITEMS: FurnitureItem[] = [
   { id: "entry-light", name: "음각 선반 간접조명", room: "현관", kind: "light", size: [.55, .06, .12], position: [-3.28, 1.35, -.35], rotation: Math.PI / 2, color: "#f0d6a2", fixed: true },
 ];
 
-const STORAGE_KEY = "sanghyeon-studio-v8-convertible-kitchen";
+const STORAGE_KEY = "sanghyeon-studio-v9-reference-remodel";
 
 const CATALOG = [
   { id: "jacomo-sofa", category: "가구", icon: Sofa, title: "자코모 휘몰라 네이비 소파", meta: "3150 × 1000 × 900", color: "#344654", kind: "sofa" as const, size: [3.15, .9, 1] as [number, number, number], room: "거실", position: [-.6, .45, 2.35] as [number, number, number] },
@@ -118,11 +118,11 @@ const CATALOG = [
   { id: "upia-desk", category: "가구", icon: SquareStack, title: "우피아 모션데스크 1800", meta: "1800 × 750 × 740", color: "#c3aa8b", kind: "desk" as const, size: [1.8, .74, .75] as [number, number, number], room: "작업방", position: [-4.35, .37, 1.15] as [number, number, number] },
   { id: "desker-shelf", category: "가구", icon: Box, title: "데스커 800 오픈형 3단", meta: "800 × 320 × 1061", color: "#e7e7e1", kind: "shelf" as const, size: [.8, 1.061, .32] as [number, number, number], room: "작업방", position: [-3.18, .531, 3.42] as [number, number, number], rotation: Math.PI / 2 },
   { id: "oled77", category: "가전", icon: Box, title: "LG OLED77C9KW 77형 벽걸이", meta: "1722 × 56 × 991", color: "#202321", kind: "appliance" as const, size: [1.722, .991, .056] as [number, number, number], room: "거실 TV월", position: [-2.72, 1.28, 2.7] as [number, number, number], rotation: Math.PI / 2 },
-  { id: "kitchen-fridge", category: "가전", icon: PackageOpen, title: "LG 오브제 컨버터블 냉장전용고", meta: "595 × 670 × 1860", color: "#e5e2da", kind: "appliance" as const, size: [.595, 1.86, .67] as [number, number, number], room: "주방 · 맞춤 냉장고장", position: [1.24, .93, -3.56] as [number, number, number] },
-  { id: "kimchi-fridge", category: "가전", icon: PackageOpen, title: "LG 오브제 컨버터블 김치냉장고", meta: "595 × 670 × 1860", color: "#ddd9d0", kind: "appliance" as const, size: [.595, 1.86, .67] as [number, number, number], room: "주방 · 맞춤 냉장고장", position: [1.87, .93, -3.56] as [number, number, number] },
-  { id: "miele-dishwasher", category: "가전", icon: PackageOpen, title: "밀레 식기세척기", meta: "598 × 570 × 805", color: "#c8c9c6", kind: "appliance" as const, size: [.598, .805, .57] as [number, number, number], room: "주방", position: [-.28, .4025, -2.15] as [number, number, number] },
-  { id: "dietrich-induction", category: "가전", icon: Grid2X2, title: "디트리쉬 DPI7686GP", meta: "650 × 515 × 40", color: "#252726", kind: "appliance" as const, size: [.65, .04, .515] as [number, number, number], room: "주방", position: [.58, .93, -2.15] as [number, number, number] },
-  { id: "wine-cellar-catalog", category: "가전", icon: PackageOpen, title: "LG 미니와인셀러 W087B", meta: "282 × 497 × 534", color: "#393b39", kind: "appliance" as const, size: [.282, .534, .497] as [number, number, number], room: "주방", position: [-.73, .267, -2.15] as [number, number, number] },
+  { id: "kitchen-fridge", category: "가전", icon: PackageOpen, title: "LG 오브제 컨버터블 냉장전용고", meta: "595 × 670 × 1860", color: "#e5e2da", kind: "appliance" as const, size: [.595, 1.86, .67] as [number, number, number], room: "주방 · 측벽 맞춤 냉장고장", position: [-.81, .93, -1.53] as [number, number, number], rotation: Math.PI / 2 },
+  { id: "kimchi-fridge", category: "가전", icon: PackageOpen, title: "LG 오브제 컨버터블 김치냉장고", meta: "595 × 670 × 1860", color: "#ddd9d0", kind: "appliance" as const, size: [.595, 1.86, .67] as [number, number, number], room: "주방 · 측벽 맞춤 냉장고장", position: [-.81, .93, -2.16] as [number, number, number], rotation: Math.PI / 2 },
+  { id: "miele-dishwasher", category: "가전", icon: PackageOpen, title: "밀레 식기세척기", meta: "598 × 570 × 805", color: "#c8c9c6", kind: "appliance" as const, size: [.598, .805, .57] as [number, number, number], room: "주방 · 후면 싱크장", position: [1.8, .4025, -3.59] as [number, number, number] },
+  { id: "dietrich-induction", category: "가전", icon: Grid2X2, title: "디트리쉬 DPI7686GP", meta: "650 × 515 × 40", color: "#252726", kind: "appliance" as const, size: [.65, .04, .515] as [number, number, number], room: "주방 아일랜드", position: [1.15, .93, -2.15] as [number, number, number] },
+  { id: "wine-cellar-catalog", category: "가전", icon: PackageOpen, title: "LG 미니와인셀러 W087B", meta: "282 × 497 × 534", color: "#393b39", kind: "appliance" as const, size: [.282, .534, .497] as [number, number, number], room: "주방 아일랜드", position: [.45, .267, -2.15] as [number, number, number] },
   { id: "system-ac", category: "가전", icon: PackageOpen, title: "1Way 시스템에어컨", meta: "850 × 360 × 55", color: "#f0f0eb", kind: "ceiling" as const, size: [.85, .055, .36] as [number, number, number], room: "침실", position: [2.35, 2.25, 1.2] as [number, number, number] },
   { id: "ph5-pendant", category: "조명", icon: LampCeiling, title: "루이스폴센 PH5", meta: "Ø500 × H267", color: "#dfb56f", kind: "light" as const, size: [.5, .28, .5] as [number, number, number], room: "거실 확장부", position: [-.6, 1.98, 4.7] as [number, number, number] },
   { id: "radar3-fan", category: "조명", icon: LampCeiling, title: "루씨에어 Radar3 실링팬", meta: "Ø1320 × H240", color: "#efe9de", kind: "fan" as const, size: [1.32, .24, 1.32] as [number, number, number], room: "거실", position: [-.75, 2.02, 3.35] as [number, number, number] },
@@ -361,14 +361,23 @@ function MiddleDoor({ x, z, width, wallColor }: { x: number; z: number; width: n
     <group>
       <Wall position={[planX(x), 2.17, planZ(z + width / 2)]} size={[.14, .26, width]} color={wallColor} />
       <group position={[planX(x), 1.03, planZ(z + width / 2)]} rotation-y={-Math.PI / 2}>
-        <mesh castShadow>
-          <boxGeometry args={[width - .04, 2.02, .035]} />
+        <mesh castShadow position={[0, .34, 0]}>
+          <boxGeometry args={[width - .04, 1.34, .035]} />
           <meshStandardMaterial color="#c9d7d5" transparent opacity={.48} roughness={.18} metalness={.06} />
+        </mesh>
+        {[-.32, -.24, -.16, -.08, 0, .08, .16, .24, .32].map((ratio) => <mesh key={ratio} position={[width * ratio, .34, .026]}>
+          <boxGeometry args={[.012, 1.28, .012]} />
+          <meshStandardMaterial color="#eef3f1" transparent opacity={.5} roughness={.2} />
+        </mesh>)}
+        <mesh castShadow position={[0, -.69, 0]}>
+          <boxGeometry args={[width - .04, .68, .045]} />
+          <meshStandardMaterial color="#e8e8e3" roughness={.7} />
         </mesh>
         <mesh position={[0, 1.01, .024]}><boxGeometry args={[width, .055, .055]} /><meshStandardMaterial color={frame} /></mesh>
         <mesh position={[0, -1.01, .024]}><boxGeometry args={[width, .055, .055]} /><meshStandardMaterial color={frame} /></mesh>
         <mesh position={[-width / 2, 0, .024]}><boxGeometry args={[.055, 2.05, .055]} /><meshStandardMaterial color={frame} /></mesh>
         <mesh position={[width / 2, 0, .024]}><boxGeometry args={[.055, 2.05, .055]} /><meshStandardMaterial color={frame} /></mesh>
+        <mesh position={[0, -.34, .024]}><boxGeometry args={[width, .045, .055]} /><meshStandardMaterial color={frame} /></mesh>
         <mesh position={[0, 0, .024]}><boxGeometry args={[.04, 2.02, .055]} /><meshStandardMaterial color={frame} /></mesh>
       </group>
     </group>
@@ -384,6 +393,8 @@ function MasterBathFixtures() {
       <RoundedBox args={[.52, .12, .38]} radius={.09} position={[planX(10.05), .78, planZ(4.84)]} castShadow>
         <meshStandardMaterial color="#f4f2ed" roughness={.24} />
       </RoundedBox>
+      <mesh position={[planX(10.05), .99, planZ(4.84)]}><cylinderGeometry args={[.018, .02, .22, 14]} /><meshStandardMaterial color="#8d8c87" metalness={.78} roughness={.16} /></mesh>
+      <mesh position={[planX(10.05), 1.35, planZ(4.62)]} rotation-y={Math.PI / 2}><circleGeometry args={[.24, 32]} /><meshStandardMaterial color="#c7d0ce" metalness={.45} roughness={.12} /></mesh>
     </group>
   );
 }
@@ -391,17 +402,20 @@ function MasterBathFixtures() {
 function CommonBathFixtures() {
   return (
     <group>
-      <RoundedBox args={[.54, .42, .7]} radius={.13} position={[-2.7, .22, -3.35]} castShadow><meshStandardMaterial color="#f1efea" roughness={.3} /></RoundedBox>
-      <RoundedBox args={[.58, .16, .42]} radius={.07} position={[-1.55, .78, -1.52]} castShadow><meshStandardMaterial color="#efede8" roughness={.28} /></RoundedBox>
-      <mesh position={[-1.35, 1.12, -2.65]} castShadow><boxGeometry args={[.1, 2.05, 1.15]} /><meshStandardMaterial color="#686a66" roughness={.82} /></mesh>
-      <mesh position={[-1.62, .95, -1.52]}><cylinderGeometry args={[.02, .025, .28, 12]} /><meshStandardMaterial color="#8c8175" metalness={.72} roughness={.2} /></mesh>
+      {/* 정확 도면의 1.9m 폭 안에 욕조-세면기-양변기 순으로 배치 */}
+      <RoundedBox args={[1.48, .5, .68]} radius={.055} position={[-2.1, .26, -3.57]} castShadow><meshStandardMaterial color="#eeeae2" roughness={.32} /></RoundedBox>
+      <RoundedBox args={[1.32, .36, .53]} radius={.045} position={[-2.1, .48, -3.57]}><meshStandardMaterial color="#c9c8c1" roughness={.26} /></RoundedBox>
+      <RoundedBox args={[.48, .42, .68]} radius={.13} position={[-1.55, .22, -1.48]} castShadow><meshStandardMaterial color="#f1efea" roughness={.3} /></RoundedBox>
+      <RoundedBox args={[.52, .2, .42]} radius={.045} position={[-2.58, .8, -1.48]} castShadow><meshStandardMaterial color="#efede8" roughness={.28} /></RoundedBox>
+      <mesh position={[-2.58, 1.01, -1.5]}><cylinderGeometry args={[.018, .021, .22, 14]} /><meshStandardMaterial color="#8c8175" metalness={.78} roughness={.16} /></mesh>
+      <mesh position={[-2.58, 1.38, -1.12]}><circleGeometry args={[.28, 32]} /><meshStandardMaterial color="#c7d0ce" metalness={.42} roughness={.12} /></mesh>
     </group>
   );
 }
 
 function KitchenFixtures() {
   return (
-    <group position={[0, .925, -2.15]}>
+    <group position={[1.05, .925, -3.58]}>
       {/* 520 × 400 언더마운트 싱크볼: 상판 위 링 대신 실제 깊이가 보이는 볼 형태 */}
       <RoundedBox args={[.52, .025, .4]} radius={.035} position={[0, .004, 0]}>
         <meshStandardMaterial color="#727775" metalness={.78} roughness={.2} />
@@ -431,31 +445,57 @@ function KitchenFridgeCabinet() {
   return (
     <group>
       {/* 컨버터블 1도어 모듈 2대를 감싸는 천장형 맞춤 냉장고장 */}
-      <RoundedBox args={[.055, 2.22, .75]} radius={.012} position={[.9, 1.11, -3.56]} castShadow>
+      <RoundedBox args={[.75, 2.22, .055]} radius={.012} position={[-.81, 1.11, -1.2]} castShadow>
         <meshStandardMaterial color={cabinet} roughness={.84} />
       </RoundedBox>
-      <RoundedBox args={[.055, 2.22, .75]} radius={.012} position={[2.21, 1.11, -3.56]} castShadow>
+      <RoundedBox args={[.75, 2.22, .055]} radius={.012} position={[-.81, 1.11, -2.49]} castShadow>
         <meshStandardMaterial color={cabinet} roughness={.84} />
       </RoundedBox>
-      <mesh position={[1.555, 2.12, -3.56]} castShadow>
-        <boxGeometry args={[1.365, .22, .75]} />
+      <mesh position={[-.81, 2.12, -1.845]} castShadow>
+        <boxGeometry args={[.75, .22, 1.345]} />
         <meshStandardMaterial color={cabinet} roughness={.84} />
       </mesh>
-      <mesh position={[1.555, .055, -3.2]}>
-        <boxGeometry args={[1.31, .11, .035]} />
+      <mesh position={[-.445, .055, -1.845]}>
+        <boxGeometry args={[.035, .11, 1.29]} />
         <meshStandardMaterial color="#b5aea2" roughness={.72} />
       </mesh>
       {/* 맞춤장과 가전 사이의 15mm 섀도 갭 */}
-      {[.925, 1.555, 2.185].map((x) => <mesh key={x} position={[x, 1.06, -3.205]}>
-        <boxGeometry args={[.016, 2.02, .018]} />
+      {[-1.225, -1.845, -2.465].map((z) => <mesh key={z} position={[-.445, 1.06, z]}>
+        <boxGeometry args={[.018, 2.02, .016]} />
         <meshStandardMaterial color={shadowGap} roughness={.64} />
       </mesh>)}
-      <mesh position={[1.555, 1.9, -3.205]}>
-        <boxGeometry args={[1.27, .015, .018]} />
+      <mesh position={[-.445, 1.9, -1.845]}>
+        <boxGeometry args={[.018, .015, 1.24]} />
         <meshStandardMaterial color={shadowGap} roughness={.64} />
       </mesh>
     </group>
   );
+}
+
+function KitchenWallCabinets() {
+  const fronts = "#e1e1dc";
+  return (
+    <group>
+      {/* 발코니 문 오른쪽 후면 싱크장 */}
+      <RoundedBox args={[1.5, .86, .62]} radius={.025} position={[1.58, .43, -3.62]} castShadow><meshStandardMaterial color={fronts} roughness={.78} /></RoundedBox>
+      <mesh position={[1.58, .89, -3.62]} castShadow><boxGeometry args={[1.56, .055, .67]} /><meshStandardMaterial color="#e7e3da" roughness={.38} /></mesh>
+      {[1.05, 1.55, 2.05].map((x) => <mesh key={x} position={[x, .45, -3.295]}><boxGeometry args={[.014, .76, .014]} /><meshStandardMaterial color="#b8b6b0" /></mesh>)}
+      {/* 사례의 ㄱ자 보조 조리대와 상부장 */}
+      <RoundedBox args={[.62, .86, 1.75]} radius={.025} position={[2.02, .43, -2.35]} castShadow><meshStandardMaterial color={fronts} roughness={.78} /></RoundedBox>
+      <mesh position={[2.02, .89, -2.35]} castShadow><boxGeometry args={[.67, .055, 1.81]} /><meshStandardMaterial color="#e7e3da" roughness={.38} /></mesh>
+      <mesh position={[1.58, 1.77, -3.82]} castShadow><boxGeometry args={[1.5, .72, .32]} /><meshStandardMaterial color={fronts} roughness={.82} /></mesh>
+      <mesh position={[2.18, 1.77, -2.35]} castShadow><boxGeometry args={[.32, .72, 1.75]} /><meshStandardMaterial color={fronts} roughness={.82} /></mesh>
+      <mesh position={[1.58, 1.38, -3.64]}><boxGeometry args={[1.42, .025, .035]} /><meshStandardMaterial color="#ffe8b7" emissive="#ffe8b7" emissiveIntensity={1.2} /></mesh>
+      <mesh position={[2, 1.38, -2.35]}><boxGeometry args={[.035, .025, 1.6]} /><meshStandardMaterial color="#ffe8b7" emissive="#ffe8b7" emissiveIntensity={1.2} /></mesh>
+    </group>
+  );
+}
+
+function EntryCabinetLighting() {
+  return <group>
+    <mesh position={[-5.53, .13, -.28]} rotation-y={Math.PI / 2}><boxGeometry args={[1.24, .025, .035]} /><meshStandardMaterial color="#ffe3a8" emissive="#ffe3a8" emissiveIntensity={1.5} /></mesh>
+    <pointLight position={[-5.28, .22, -.28]} intensity={.55} distance={1.8} color="#ffe5b2" />
+  </group>;
 }
 
 function Chair({ position, rotation = 0 }: { position: [number, number, number]; rotation?: number }) {
@@ -700,6 +740,8 @@ function ApartmentScene({ finish, view, items, selectedId, invalidId, onSelect, 
       <CommonBathFixtures />
       <KitchenFixtures />
       <KitchenFridgeCabinet />
+      <KitchenWallCabinets />
+      <EntryCabinetLighting />
       {items.map((item) => <FurnitureModel key={item.id} item={item} selected={selectedId === item.id} invalid={invalidId === item.id} view={view} onSelect={() => onSelect(item.id)} />)}
       <ContactShadows opacity={.28} scale={16} blur={2.3} far={4} />
       <Environment preset="apartment" environmentIntensity={.35} />
