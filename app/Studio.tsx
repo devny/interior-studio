@@ -47,10 +47,24 @@ type FurnitureItem = {
 };
 
 const FINISHES: Record<FinishKey, { name: string; sub: string; color: string; texture: string }> = {
-  "warm-white": { name: "모던 회벽 화이트", sub: "LX 디아망 · 회벽 질감", color: "#e8e3d7", texture: "/materials/wallpaper-plaster-real.webp" },
+  "warm-white": { name: "영감회벽 라이트크림", sub: "LX 베스트 82600-07", color: "#e9e2d5", texture: "/materials/wallpaper-plaster-real.webp" },
   sage: { name: "소프트 세이지", sub: "무광 패브릭 벽지", color: "#aeb5a1", texture: "/materials/wallpaper-sage.svg" },
   sand: { name: "샌드 베이지", sub: "세로 직조 질감 벽지", color: "#cbbda6", texture: "/materials/wallpaper-sand.svg" },
   stone: { name: "웜 그레이 린넨", sub: "교차 직조 질감 벽지", color: "#babbb6", texture: "/materials/wallpaper-linen.svg" },
+};
+
+const MATERIALS = {
+  mildOak: { name: "이건 강마루 그린 마일드 오크", color: "#d8b27b" },
+  wallpaper: { name: "LX 베스트 82600-07 영감회벽 라이트크림", color: "#e9e2d5" },
+  ps160: { name: "영림 PS160 주백색", color: "#ece9df" },
+  younglim173: { name: "영림 173 · PW961", color: "#b89570" },
+  snowBeige: { name: "예림 매트스노우베이지 SM-28", color: "#ded8ca" },
+  naturalOak: { name: "성원 리얼내추럴오크", color: "#a97950" },
+  gravillaCream: { name: "LX 하이막스 그라빌라 크림 GM02", color: "#ddd2bf" },
+  veniceCotton: { name: "논현131 VENICE COTTON", color: "#d8d2c5" },
+  joinMango: { name: "Caesar JOIN MANGO", color: "#cda15b" },
+  veniceCottonGv: { name: "VENICE COTTON GV", color: "#c7bba7" },
+  nvBeige: { name: "논현131 NV BEIGE", color: "#cbbba2" },
 };
 
 const INITIAL_ITEMS: FurnitureItem[] = [
@@ -69,7 +83,7 @@ const INITIAL_ITEMS: FurnitureItem[] = [
   { id: "master-bed", name: "라메리트 몰튼 침대 A LK", room: "안방", kind: "bed", size: [1.8, 1, 2.28], position: [3.02, .5, 3.68], rotation: -Math.PI / 2, color: "#9c7658" },
   { id: "master-vanity", name: "몰튼 화장대 + 거울", room: "안방", kind: "cabinet", size: [1.2, .85, .4], position: [3.65, .425, .82], rotation: 0, color: "#a77d5d" },
   { id: "master-chest", name: "몰튼 와이드체스트", room: "안방", kind: "cabinet", size: [1.2, .75, .45], position: [4.95, .375, .82], rotation: 0, color: "#9f7556" },
-  { id: "master-wardrobe", name: "무광 크림 붙박이장", room: "안방", kind: "cabinet", size: [2.25, 2.2, .6], position: [5.48, 1.1, 2.2], rotation: Math.PI / 2, color: "#dedbd1", fixed: true },
+  { id: "master-wardrobe", name: "영림 PS160 붙박이장", room: "안방", kind: "cabinet", size: [2.25, 2.2, .6], position: [5.48, 1.1, 2.2], rotation: Math.PI / 2, color: "#ece9df", fixed: true },
   { id: "master-ac", name: "안방 시스템에어컨", room: "안방", kind: "ceiling", size: [.85, .055, .36], position: [2.35, 2.25, 1.2], rotation: 0, color: "#f0f0eb", fixed: true },
   { id: "master-fan", name: "안방 실링팬", room: "안방", kind: "fan", size: [1.05, .2, 1.05], position: [3.75, 2.04, 2.35], rotation: 0, color: "#eee7dc", fixed: true },
 
@@ -90,7 +104,7 @@ const INITIAL_ITEMS: FurnitureItem[] = [
   { id: "office-ac", name: "작업방 시스템에어컨", room: "부부 작업방", kind: "ceiling", size: [.75, .05, .34], position: [-4.35, 2.25, 4.15], rotation: 0, color: "#f0f0eb", fixed: true },
 
   // 주방 — 식탁 없음, 보유 가전과 교체 예정 냉장고장
-  { id: "island", name: "인덕션 반도형 아일랜드", room: "주방", kind: "island", size: [1.25, .9, .85], position: [1.1, .45, -2.15], rotation: 0, color: "#d4cfc3", fixed: true },
+  { id: "island", name: "SM-28 반도형 아일랜드", room: "주방", kind: "island", size: [1.25, .9, .85], position: [1.1, .45, -2.15], rotation: 0, color: "#ded8ca", fixed: true },
   // 시공 사례처럼 냉장고장은 욕실측 벽에 세우고 발코니 출입구를 완전히 비운다.
   { id: "fridge", name: "LG 오브제 컨버터블 냉장전용고", room: "주방 · 측벽 맞춤 냉장고장", kind: "appliance", size: [.595, 1.86, .67], position: [-.81, .93, -1.53], rotation: Math.PI / 2, color: "#e5e2da", fixed: true },
   { id: "kimchi-fridge", name: "LG 오브제 컨버터블 김치냉장고", room: "주방 · 측벽 맞춤 냉장고장", kind: "appliance", size: [.595, 1.86, .67], position: [-.81, .93, -2.16], rotation: Math.PI / 2, color: "#ddd9d0", fixed: true },
@@ -102,12 +116,12 @@ const INITIAL_ITEMS: FurnitureItem[] = [
   { id: "bath2-vent", name: "힘펠 휴젠뜨3", room: "안방욕실", kind: "ceiling", size: [.45, .055, .45], position: [4.85, 2.25, -.25], rotation: 0, color: "#e6e5df", fixed: true },
 
   // 짧은 현관 — 신발장, 벤치, 음각 선반과 간접조명
-  { id: "entry-cabinet", name: "맞춤 신발장", room: "현관", kind: "cabinet", size: [1.35, 2.15, .35], position: [-5.56, 1.075, -.28], rotation: Math.PI / 2, color: "#d9d6cd", fixed: true },
+  { id: "entry-cabinet", name: "영림 PS160 맞춤 신발장", room: "현관", kind: "cabinet", size: [1.35, 2.15, .35], position: [-5.56, 1.075, -.28], rotation: Math.PI / 2, color: "#ece9df", fixed: true },
   { id: "entry-bench", name: "현관 착석 벤치", room: "현관", kind: "stool", size: [.78, .43, .38], position: [-4.05, .215, -.62], rotation: 0, color: "#aa805e", fixed: true },
   { id: "entry-light", name: "음각 선반 간접조명", room: "현관", kind: "light", size: [.55, .06, .12], position: [-3.28, 1.35, -.35], rotation: Math.PI / 2, color: "#f0d6a2", fixed: true },
 ];
 
-const STORAGE_KEY = "sanghyeon-studio-v10-reference-kitchen";
+const STORAGE_KEY = "sanghyeon-studio-v11-selected-materials";
 
 const CATALOG = [
   { id: "jacomo-sofa", category: "가구", icon: Sofa, title: "자코모 휘몰라 네이비 소파", meta: "3150 × 1000 × 900", color: "#344654", kind: "sofa" as const, size: [3.15, .9, 1] as [number, number, number], room: "거실", position: [-.6, .45, 2.35] as [number, number, number] },
@@ -264,6 +278,8 @@ const WALLS: WallSpec[] = [
 
 function RoomFloor({ room, showLabel }: { room: RoomSpec; showLabel: boolean }) {
   const tiled = /욕실|현관|발코니/.test(room.name);
+  const entry = room.name === "현관";
+  const bathroom = /욕실/.test(room.name);
   const sourceTexture = useTexture(tiled ? "/materials/floor-porcelain-greige.webp" : "/materials/floor-oak-natural.webp");
   const floorTexture = useMemo(() => {
     const texture = sourceTexture.clone();
@@ -281,12 +297,35 @@ function RoomFloor({ room, showLabel }: { room: RoomSpec; showLabel: boolean }) 
   return (
     <group>
       <mesh rotation-x={-Math.PI / 2} receiveShadow position={[planX(room.x), 0, planZ(room.z)]}>
-        <planeGeometry args={[room.w - .04, room.d - .04]} />
-        <meshStandardMaterial color={tiled ? "#f3f0ea" : "#f8f0e2"} map={floorTexture} bumpMap={floorTexture} bumpScale={tiled ? .014 : .01} roughness={tiled ? .82 : .72} />
+        <planeGeometry args={[room.w + .008, room.d + .008]} />
+        <meshStandardMaterial color={entry ? MATERIALS.nvBeige.color : bathroom ? MATERIALS.veniceCotton.color : tiled ? "#d8d4ca" : "#f2d7ad"} map={floorTexture} bumpMap={floorTexture} bumpScale={tiled ? .014 : .01} roughness={tiled ? .82 : .72} />
       </mesh>
       {showLabel && <Html position={[planX(room.x), .05, planZ(room.z)]} center className="room-label">{room.name}</Html>}
     </group>
   );
+}
+
+function TilePanel({ position, width, height, tileWidth, tileHeight, color, rotation = 0 }: { position: [number, number, number]; width: number; height: number; tileWidth: number; tileHeight: number; color: string; rotation?: number }) {
+  const verticals = Array.from({ length: Math.floor(width / tileWidth) }, (_, index) => -width / 2 + tileWidth * (index + 1)).filter((x) => x < width / 2 - .01);
+  const horizontals = Array.from({ length: Math.floor(height / tileHeight) }, (_, index) => -height / 2 + tileHeight * (index + 1)).filter((y) => y < height / 2 - .01);
+  return <group position={position} rotation-y={rotation}>
+    <mesh receiveShadow><boxGeometry args={[width, height, .028]} /><meshStandardMaterial color={color} roughness={.76} /></mesh>
+    {verticals.map((x) => <mesh key={`v-${x}`} position={[x, 0, .016]}><boxGeometry args={[.008, height, .006]} /><meshStandardMaterial color="#b7afa2" roughness={.9} /></mesh>)}
+    {horizontals.map((y) => <mesh key={`h-${y}`} position={[0, y, .016]}><boxGeometry args={[width, .008, .006]} /><meshStandardMaterial color="#b7afa2" roughness={.9} /></mesh>)}
+  </group>;
+}
+
+function SelectedMaterialSurfaces() {
+  return <group>
+    {/* 주방: VENICE COTTON 600×1200 가로 시공 */}
+    <TilePanel position={[1.18, 1.28, -3.94]} width={2.25} height={.72} tileWidth={1.2} tileHeight={.6} color={MATERIALS.veniceCotton.color} />
+    {/* 공용욕실: 기본 VENICE COTTON과 욕조 뒤 JOIN MANGO 포인트면 */}
+    <TilePanel position={[-3.045, 1.15, -2.51]} width={2.9} height={2.26} tileWidth={.6} tileHeight={.6} color={MATERIALS.veniceCotton.color} rotation={Math.PI / 2} />
+    <TilePanel position={[-2.1, 1.15, -3.972]} width={1.86} height={2.26} tileWidth={1.2} tileHeight={.6} color={MATERIALS.joinMango.color} />
+    {/* 안방욕실: 기본 VENICE COTTON과 세면대 뒤 GV 포인트면 */}
+    <TilePanel position={[3.858, 1.15, -.295]} width={1.48} height={2.26} tileWidth={.6} tileHeight={.6} color={MATERIALS.veniceCotton.color} rotation={Math.PI / 2} />
+    <TilePanel position={[4.85, 1.15, -1.058]} width={1.96} height={2.26} tileWidth={1.2} tileHeight={.6} color={MATERIALS.veniceCottonGv.color} />
+  </group>;
 }
 
 function CameraRig({ view }: { view: "3d" | "2d" }) {
@@ -330,7 +369,7 @@ function Door({ x, z, width, rotation = 0 }: { x: number; z: number; width: numb
     <group position={[planX(x), 1.02, planZ(z)]} rotation-y={rotation}>
       <mesh castShadow position={[width / 2, 0, 0]}>
         <boxGeometry args={[width, 2.04, .045]} />
-        <meshStandardMaterial color="#9d7655" roughness={.72} />
+        <meshStandardMaterial color={MATERIALS.ps160.color} roughness={.76} />
       </mesh>
       <mesh position={[width - .08, 0, .038]}>
         <sphereGeometry args={[.035, 10, 10]} />
@@ -356,7 +395,7 @@ function DoorOpening({ x, z, axis, width, rotation, wallColor }: { x: number; z:
 }
 
 function MiddleDoor({ x, z, width, wallColor }: { x: number; z: number; width: number; wallColor: string }) {
-  const frame = "#60645f";
+  const frame = MATERIALS.younglim173.color;
   return (
     <group>
       <Wall position={[planX(x), 2.17, planZ(z + width / 2)]} size={[.14, .26, width]} color={wallColor} />
@@ -371,7 +410,7 @@ function MiddleDoor({ x, z, width, wallColor }: { x: number; z: number; width: n
         </mesh>)}
         <mesh castShadow position={[0, -.69, 0]}>
           <boxGeometry args={[width - .04, .68, .045]} />
-          <meshStandardMaterial color="#e8e8e3" roughness={.7} />
+          <meshStandardMaterial color={MATERIALS.younglim173.color} roughness={.72} />
         </mesh>
         <mesh position={[0, 1.01, .024]}><boxGeometry args={[width, .055, .055]} /><meshStandardMaterial color={frame} /></mesh>
         <mesh position={[0, -1.01, .024]}><boxGeometry args={[width, .055, .055]} /><meshStandardMaterial color={frame} /></mesh>
@@ -440,7 +479,7 @@ function KitchenFixtures() {
 }
 
 function KitchenFridgeCabinet() {
-  const cabinet = "#e6e1d7";
+  const cabinet = MATERIALS.snowBeige.color;
   const shadowGap = "#aaa59b";
   return (
     <group>
@@ -460,7 +499,7 @@ function KitchenFridgeCabinet() {
         <meshStandardMaterial color="#b5aea2" roughness={.72} />
       </mesh>
       <RoundedBox args={[.028, 2.06, .575]} radius={.012} position={[-.46, 1.03, -2.79]} castShadow>
-        <meshStandardMaterial color={cabinet} roughness={.82} />
+        <meshStandardMaterial color={MATERIALS.naturalOak.color} roughness={.78} />
       </RoundedBox>
       {/* 맞춤장과 가전 사이의 15mm 섀도 갭 */}
       {[-1.225, -1.845, -2.475, -3.095].map((z) => <mesh key={z} position={[-.445, 1.06, z]}>
@@ -476,24 +515,25 @@ function KitchenFridgeCabinet() {
 }
 
 function KitchenWallCabinets() {
-  const fronts = "#e1e1dc";
+  const fronts = MATERIALS.snowBeige.color;
+  const countertop = MATERIALS.gravillaCream.color;
   return (
     <group>
       {/* 발코니 문 오른쪽 후면 싱크장 */}
       <RoundedBox args={[2.25, .86, .62]} radius={.025} position={[1.18, .43, -3.62]} castShadow><meshStandardMaterial color={fronts} roughness={.78} /></RoundedBox>
-      <mesh position={[1.18, .89, -3.62]} castShadow><boxGeometry args={[2.31, .055, .67]} /><meshStandardMaterial color="#e7e3da" roughness={.38} /></mesh>
+      <mesh position={[1.18, .89, -3.62]} castShadow><boxGeometry args={[2.31, .055, .67]} /><meshStandardMaterial color={countertop} roughness={.4} /></mesh>
       {[.43, 1.18, 1.93].map((x) => <mesh key={x} position={[x, .45, -3.295]}><boxGeometry args={[.014, .76, .014]} /><meshStandardMaterial color="#b8b6b0" /></mesh>)}
       {/* 사례의 ㄱ자 보조 조리대와 상부장 */}
       <RoundedBox args={[.62, .86, 1.75]} radius={.025} position={[2.02, .43, -2.35]} castShadow><meshStandardMaterial color={fronts} roughness={.78} /></RoundedBox>
-      <mesh position={[2.02, .89, -2.35]} castShadow><boxGeometry args={[.67, .055, 1.81]} /><meshStandardMaterial color="#e7e3da" roughness={.38} /></mesh>
+      <mesh position={[2.02, .89, -2.35]} castShadow><boxGeometry args={[.67, .055, 1.81]} /><meshStandardMaterial color={countertop} roughness={.4} /></mesh>
       <mesh position={[1.18, 1.77, -3.82]} castShadow><boxGeometry args={[2.25, .72, .32]} /><meshStandardMaterial color={fronts} roughness={.82} /></mesh>
       <mesh position={[2.18, 1.77, -2.35]} castShadow><boxGeometry args={[.32, .72, 1.75]} /><meshStandardMaterial color={fronts} roughness={.82} /></mesh>
-      <mesh position={[1.18, 1.28, -3.925]}><boxGeometry args={[2.25, .72, .03]} /><meshStandardMaterial color="#e8e3d9" roughness={.34} /></mesh>
       <mesh position={[1.18, 1.38, -3.64]}><boxGeometry args={[2.15, .025, .035]} /><meshStandardMaterial color="#ffe8b7" emissive="#ffe8b7" emissiveIntensity={1.2} /></mesh>
       <mesh position={[2, 1.38, -2.35]}><boxGeometry args={[.035, .025, 1.6]} /><meshStandardMaterial color="#ffe8b7" emissive="#ffe8b7" emissiveIntensity={1.2} /></mesh>
       {/* 실제 사례의 후면 조리대 위 소형가전 존 */}
       <RoundedBox args={[.52, .34, .34]} radius={.025} position={[.38, 1.09, -3.55]} castShadow><meshStandardMaterial color="#e9e8e3" roughness={.45} /></RoundedBox>
       <mesh position={[.38, 1.09, -3.375]}><planeGeometry args={[.4, .22]} /><meshStandardMaterial color="#2c302f" metalness={.28} roughness={.14} /></mesh>
+      <mesh position={[.1, 1.62, -3.805]}><boxGeometry args={[.34, .9, .045]} /><meshStandardMaterial color={MATERIALS.naturalOak.color} roughness={.78} /></mesh>
     </group>
   );
 }
@@ -690,7 +730,7 @@ function FurnitureModel({ item, selected, invalid, view, onSelect }: { item: Fur
       {item.kind === "stool" && <RoundedBox args={[w, h, d]} radius={.12} castShadow><meshStandardMaterial color={item.color} roughness={.95} /></RoundedBox>}
       {item.kind === "island" && <>
         <RoundedBox args={[w, h, d]} radius={.045} castShadow><meshStandardMaterial color={item.color} roughness={.68} /></RoundedBox>
-        <mesh position={[0, h*.52, 0]} castShadow><boxGeometry args={[w+.08, .06, d+.08]} /><meshStandardMaterial color="#e1ded7" roughness={.32} /></mesh>
+        <mesh position={[0, h*.52, 0]} castShadow><boxGeometry args={[w+.08, .06, d+.08]} /><meshStandardMaterial color={MATERIALS.gravillaCream.color} roughness={.38} /></mesh>
       </>}
       {item.kind === "chair" && <>
         <RoundedBox args={[w, .16, d * .82]} radius={.08} position={[0, -.05, 0]} castShadow><meshStandardMaterial color={item.color} roughness={.9} /></RoundedBox>
@@ -736,6 +776,7 @@ function ApartmentScene({ finish, view, items, selectedId, invalidId, onSelect, 
           return <Wall key={index} position={[planX(segment.x), segment.y ?? height / 2, planZ(segment.z)]} size={[segment.w, height, segment.d]} color={segment.material === "glass" ? "#b9d1d3" : wall} finish={segment.material === "glass" ? undefined : finish} />;
         })}
       </group>
+      <SelectedMaterialSurfaces />
       <DoorOpening x={.15} z={4.53} axis="horizontal" width={1.05} rotation={0} wallColor={wall} />
       <MiddleDoor x={2.8} z={4.65} width={.9} wallColor={wall} />
       <DoorOpening x={1.85} z={6.04} axis="horizontal" width={.9} rotation={0} wallColor={wall} />
@@ -842,7 +883,7 @@ export function Studio() {
     setFinish("warm-white");
     setSelectedId(null);
     setSaved(false);
-    showNotice("기획서 V4 기본 배치를 복원했어요");
+    showNotice("지정 마감재와 기획서 기본 배치를 복원했어요");
   };
 
   return (
@@ -861,7 +902,7 @@ export function Studio() {
             {[{name:"가구",icon:Sofa},{name:"벽지",icon:Grid2X2},{name:"가전",icon:PackageOpen},{name:"조명",icon:LampCeiling}].map(({ name, icon: Icon }) => <button key={name} className={category === name ? "active" : ""} onClick={() => setCategory(name)}><Icon size={18} /><span>{name}</span></button>)}
           </nav>
           {category === "벽지" ? <div className="finish-list"><div className="section-label">전체 벽지 · 4</div>{(Object.entries(FINISHES) as [FinishKey, typeof FINISHES[FinishKey]][]).map(([key, item]) => <button key={key} className={`finish-card ${finish === key ? "selected" : ""}`} onClick={() => { setFinish(key); setSaved(false); showNotice(`${item.name} 벽지를 전체 벽에 적용했어요`); }}><span className="finish-swatch wallpaper" style={{backgroundImage:`url(${item.texture})`,backgroundColor:item.color}} /><span><strong>{item.name}</strong><small>{item.sub}</small></span>{finish === key && <Sparkles size={16} />}</button>)}</div> : <div className="catalog"><div className="catalog-header"><span className="section-label">추천 {category} · {filteredCatalog.length}</span><span className="catalog-hint">눌러서 배치</span></div><div className="catalog-grid">{filteredCatalog.map(({icon:Icon,...item}) => <button className="product-card" key={item.id} onClick={() => addCatalogItem({ icon: Icon, ...item })}><span className="product-visual" style={{background:`linear-gradient(145deg, ${item.color}, #ece7dd)`}}><Icon size={40} strokeWidth={1.2} /><span className="add-product"><Plus size={13} /></span></span><strong>{item.title}</strong><small>{item.meta}</small></button>)}{filteredCatalog.length === 0 && <div className="catalog-empty">검색 결과가 없어요</div>}</div></div>}
-          <div className="accuracy-note"><Maximize2 size={17} /><div><strong>기획서 보유품 반영</strong><span>{INITIAL_ITEMS.length}개 가구·가전·설비를 실제 규격 비율로 배치했어요.</span></div></div>
+          <div className="accuracy-note"><Maximize2 size={17} /><div><strong>실제품 마감재 반영</strong><span>마일드 오크 · 82600-07 · SM-28 · PS160 · VENICE COTTON</span></div></div>
         </aside>
 
         <section className="canvas-area">
