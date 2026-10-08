@@ -79,10 +79,10 @@ const INITIAL_ITEMS: FurnitureItem[] = [
 
   // 안방 — 라메리트 몰튼 세트와 신규 붙박이장
   // 확장창을 막지 않도록 침대 헤드가 거실측 내벽을 향한다.
-  { id: "master-bed", name: "라메리트 몰튼 침대 A LK", room: "안방", kind: "bed", size: [1.8, 1, 2.28], position: [3.02, .5, 3.68], rotation: -Math.PI / 2, color: "#9c7658" },
-  { id: "master-vanity", name: "몰튼 화장대 + 거울", room: "안방", kind: "cabinet", size: [1.2, .85, .4], position: [3.65, .425, .82], rotation: 0, color: "#a77d5d" },
-  { id: "master-chest", name: "몰튼 와이드체스트", room: "안방", kind: "cabinet", size: [1.2, .75, .45], position: [4.95, .375, .82], rotation: 0, color: "#9f7556" },
-  { id: "master-wardrobe", name: "영림 PS102 붙박이장", room: "안방", kind: "cabinet", size: [2.25, 2.2, .6], position: [5.48, 1.1, 2.2], rotation: Math.PI / 2, color: "#eceae3", fixed: true },
+  { id: "master-bed", name: "라메리트 몰튼 침대 A LK", room: "안방", kind: "bed", size: [1.8, 1, 2.28], position: [2.95, .5, 2.85], rotation: -Math.PI / 2, color: "#9c7658" },
+  { id: "master-vanity", name: "몰튼 화장대 + 거울", room: "안방", kind: "cabinet", size: [1.2, .85, .4], position: [2.25, .425, .85], rotation: 0, color: "#a77d5d" },
+  { id: "master-chest", name: "몰튼 와이드체스트", room: "안방", kind: "cabinet", size: [1.2, .75, .45], position: [3.45, .375, .85], rotation: 0, color: "#9f7556" },
+  { id: "master-wardrobe", name: "영림 PS102 붙박이장", room: "안방", kind: "cabinet", size: [2.25, 2.2, .6], position: [5.5, 1.1, 2.75], rotation: Math.PI / 2, color: "#eceae3", fixed: true },
   { id: "master-ac", name: "안방 시스템에어컨", room: "안방", kind: "ceiling", size: [.85, .055, .36], position: [2.35, 2.25, 1.2], rotation: 0, color: "#f0f0eb", fixed: true },
   { id: "master-fan", name: "안방 실링팬", room: "안방", kind: "fan", size: [1.05, .2, 1.05], position: [3.75, 2.04, 2.35], rotation: 0, color: "#eee7dc", fixed: true },
 
@@ -120,12 +120,12 @@ const INITIAL_ITEMS: FurnitureItem[] = [
   { id: "entry-light", name: "음각 선반 간접조명", room: "현관", kind: "light", size: [.55, .06, .12], position: [-3.28, 1.35, -.35], rotation: Math.PI / 2, color: "#f0d6a2", fixed: true },
 ];
 
-const STORAGE_KEY = "sanghyeon-studio-v12-material-revision";
+const STORAGE_KEY = "sanghyeon-studio-v13-master-balcony";
 
 const CATALOG = [
   { id: "jacomo-sofa", category: "가구", icon: Sofa, title: "자코모 휘몰라 네이비 소파", meta: "3150 × 1000 × 900", color: "#344654", kind: "sofa" as const, size: [3.15, .9, 1] as [number, number, number], room: "거실", position: [-.6, .45, 2.35] as [number, number, number] },
   { id: "ramerit-table", category: "가구", icon: SquareStack, title: "라메리트 바움오크 페닉스 오벌 식탁", meta: "1800 × 950 × 750", color: "#d8d2c7", kind: "table" as const, size: [1.8, .75, .95] as [number, number, number], room: "거실 확장부", position: [-.6, .375, 4.7] as [number, number, number] },
-  { id: "ramerit-bed", category: "가구", icon: Box, title: "라메리트 몰튼 침대 A LK", meta: "1800 × 2280 × 1000", color: "#9c7658", kind: "bed" as const, size: [1.8, 1, 2.28] as [number, number, number], room: "안방", position: [3.02, .5, 3.68] as [number, number, number], rotation: -Math.PI / 2 },
+  { id: "ramerit-bed", category: "가구", icon: Box, title: "라메리트 몰튼 침대 A LK", meta: "1800 × 2280 × 1000", color: "#9c7658", kind: "bed" as const, size: [1.8, 1, 2.28] as [number, number, number], room: "안방", position: [2.95, .5, 2.85] as [number, number, number], rotation: -Math.PI / 2 },
   { id: "oliver-daybed", category: "가구", icon: Box, title: "안데르센 올리버 하이가드 SS", meta: "1200 × 2120 × 960", color: "#b58a64", kind: "daybed" as const, size: [1.2, .96, 2.12] as [number, number, number], room: "아이방", position: [4.7, .48, -2.55] as [number, number, number] },
   { id: "iloom-shelf", category: "가구", icon: Box, title: "일룸 에디키즈 슬라이딩 3단", meta: "1190 × 392 × 1054.5", color: "#d8d6ce", kind: "shelf" as const, size: [1.19, 1.0545, .392] as [number, number, number], room: "아이방", position: [2.6, .527, -3.18] as [number, number, number], rotation: Math.PI / 2 },
   { id: "upia-desk", category: "가구", icon: SquareStack, title: "우피아 모션데스크 1800", meta: "1800 × 750 × 740", color: "#c3aa8b", kind: "desk" as const, size: [1.8, .74, .75] as [number, number, number], room: "작업방", position: [-4.35, .37, 1.15] as [number, number, number] },
@@ -217,7 +217,8 @@ type WallSpec = { x: number; z: number; w: number; d: number; height?: number; y
 const ROOMS: RoomSpec[] = [
   { name: "침실2 · 확장", x: 1.45, z: 8.61, w: 2.9, d: 5.13, color: "#ddd1bc" },
   { name: "거실 · 확장", x: 5.25, z: 8.61, w: 4.7, d: 5.13, color: "#b89973" },
-  { name: "침실1 · 확장", x: 9.65, z: 8.61, w: 4.1, d: 5.13, color: "#d9cdb8" },
+  { name: "침실1", x: 9.65, z: 7.955, w: 4.1, d: 3.83, color: "#d9cdb8" },
+  { name: "안방 발코니", x: 9.65, z: 10.52, w: 4.1, d: 1.3, color: "#d8d4ca" },
   { name: "침실3", x: 9.95, z: 3.07, w: 3.5, d: 2.93, color: "#ded3bd" },
   { name: "주방/식당", x: 6.45, z: 3.07, w: 3.5, d: 2.93, color: "#aa916b" },
   { name: "욕실1", x: 3.75, z: 3.07, w: 1.9, d: 2.93, color: "#8d918e" },
@@ -263,9 +264,12 @@ const WALLS: WallSpec[] = [
   { x: 7.675, z: 6.04, w: .15, d: .14 },
   { x: 9.175, z: 6.04, w: 1.05, d: .14 },
 
-  // 하부 세 공간의 경계. 방문은 상부 벽에 있고 세로 벽은 확장부까지 연속된다.
+  // 하부 세 공간의 경계. 거실과 침실2는 확장, 안방은 기존 발코니를 유지한다.
   { x: 2.9, z: 8.61, w: .14, d: 5.13 },
   { x: 7.6, z: 8.61, w: .14, d: 5.13 },
+
+  // 안방 비확장 발코니 경계창
+  { x: 9.65, z: 9.87, w: 4.1, d: .1, height: 2.05, y: 1.025, material: "glass" },
 
   // 상부 발코니 창호와 확장된 전면 외창
   { x: 5.65, z: 1.6, w: 1.9, d: .1, height: .92, y: .46, material: "glass" },
@@ -704,7 +708,7 @@ function FurnitureModel({ item, selected, invalid, view, onSelect }: { item: Fur
           <cylinderGeometry args={[.045, .07, h * .82, 4]} />
           <meshStandardMaterial color="#a97850" roughness={.72} />
         </mesh>)}
-        {[[-w*.27, -d*.92, 0], [w*.27, -d*.92, 0], [-w*.27, d*.92, Math.PI], [w*.27, d*.92, Math.PI]].map(([x, z, rotation], i) => <Chair key={i} position={[x, 0, z]} rotation={rotation} />)}
+        {[[-w*.27, -d*.92, Math.PI], [w*.27, -d*.92, Math.PI], [-w*.27, d*.92, 0], [w*.27, d*.92, 0]].map(([x, z, rotation], i) => <Chair key={i} position={[x, 0, z]} rotation={rotation} />)}
       </> : <>
         <RoundedBox args={[w, .1, d]} radius={.05} position={[0, h / 2 - .05, 0]} castShadow><meshStandardMaterial color={item.color} roughness={.55} /></RoundedBox>
         {w > 1 ? <>
@@ -929,7 +933,7 @@ export function Studio() {
         </aside>
 
         <section className="canvas-area">
-          <div className="room-bar"><span className="eyebrow">PROJECTBOOK V4</span><strong>109㎡ 전체 배치</strong><span>11,700 × 11,170</span><span className="draft-badge">기획서 품목 {items.length}개 · 좌우반전 · 3개 공간 확장</span></div>
+          <div className="room-bar"><span className="eyebrow">PROJECTBOOK V4</span><strong>109㎡ 전체 배치</strong><span>11,700 × 11,170</span><span className="draft-badge">기획서 품목 {items.length}개 · 좌우반전 · 거실·침실2 확장</span></div>
           <div className="view-switch"><button className={view === "2d" ? "active" : ""} onClick={() => setView("2d")}><Grid2X2 size={15} /> 2D</button><button className={view === "3d" ? "active" : ""} onClick={() => setView("3d")}><Layers3 size={15} /> 3D</button></div>
           {view === "2d" && <div className="reference-controls">
             <button className={showReference ? "active" : ""} aria-pressed={showReference} onClick={() => setShowReference((current) => !current)}><Eye size={14} /> 도면 대조</button>
@@ -953,7 +957,7 @@ export function Studio() {
             <div className="property-section"><div className="property-heading"><span>배치 상태</span></div><div className={`placement-ok ${selectedIssue ? "invalid" : ""}`}><span>{selectedIssue ? "!" : "✓"}</span><div><strong>{selectedIssue ?? "배치 가능한 위치"}</strong><small>{selectedIssue ? "이동하거나 90° 회전해 간격을 확보하세요" : "도면 안에서 다른 제품과 겹치지 않아요"}</small></div></div></div>
             <div className="property-section surface"><div className="property-heading"><span>소재</span></div><div className="material-chip"><span style={{background:selected.color}} /><div><strong>기존 제품 마감</strong><small>보유 가구 · 변경 없음</small></div></div></div>
           </> : <div className="empty-selection"><div><Move3D size={24} /></div><h2>가구를 선택해보세요</h2><p>크기와 위치를 확인하고<br/>정확하게 배치할 수 있어요.</p></div>}
-          <div className="plan-facts"><span className="eyebrow">PROJECTBOOK FACTS</span><ul><li><span>01</span>제공 CAD 도면을 좌우반전</li><li><span>02</span>침실2·거실·침실1 발코니 확장</li><li><span>03</span>식탁은 거실 확장부에만 배치</li><li><span>04</span>보유품·신규 설비 {INITIAL_ITEMS.length}개 반영</li></ul></div>
+          <div className="plan-facts"><span className="eyebrow">PROJECTBOOK FACTS</span><ul><li><span>01</span>제공 CAD 도면을 좌우반전</li><li><span>02</span>침실2·거실 확장, 안방 발코니 유지</li><li><span>03</span>식탁은 거실 확장부에만 배치</li><li><span>04</span>보유품·신규 설비 {INITIAL_ITEMS.length}개 반영</li></ul></div>
         </aside>
       </section>
     </main>
