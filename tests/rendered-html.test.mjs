@@ -52,5 +52,5 @@ test("supports direct furniture move and rotation controls", async () => {
   assert.match(studio, /Math\.PI \/ 12/);
   assert.match(studio, /enabled=\{!interactingId\}/);
   assert.match(studio, /원래 위치로 되돌렸어요/);
-  assert.match(studio, /event\.key\.toLowerCase\(\) === "r"/);
+  assert.match(studio, /event\.code === "KeyR"/);
 });
