@@ -80,10 +80,10 @@ const INITIAL_ITEMS: FurnitureItem[] = [
   // 안방 — 라메리트 몰튼 세트와 신규 붙박이장
   // 확장창을 막지 않도록 침대 헤드가 거실측 내벽을 향한다.
   { id: "master-bed", name: "라메리트 몰튼 침대 A LK", room: "안방", kind: "bed", size: [1.8, 1, 2.28], position: [4.55, .5, 2.85], rotation: Math.PI / 2, color: "#9c7658" },
-  // 두 출입문이 있는 상부 벽을 비우고, 침대와 붙박이장을 서로 마주보는 양쪽 벽에 둔다.
-  { id: "master-vanity", name: "몰튼 화장대 + 거울", room: "안방", kind: "cabinet", size: [1.2, .85, .4], position: [4.75, .425, 4.05], rotation: 0, color: "#a77d5d" },
-  { id: "master-chest", name: "몰튼 와이드체스트", room: "안방", kind: "cabinet", size: [1.2, .75, .45], position: [3.02, .375, 4.04], rotation: 0, color: "#9f7556" },
-  { id: "master-wardrobe", name: "영림 PS102 붙박이장", room: "안방", kind: "cabinet", size: [2.25, 2.2, .6], position: [2.06, 1.1, 2.75], rotation: Math.PI / 2, color: "#eceae3", fixed: true },
+  // 왼쪽 벽에는 붙박이장과 화장대를 연속 배치하고, 두 출입문 사이 벽에는 와이드체스트를 둔다.
+  { id: "master-vanity", name: "몰튼 화장대 + 거울", room: "안방", kind: "cabinet", size: [1.2, .85, .4], position: [2.05, .425, 1.14], rotation: Math.PI / 2, color: "#a77d5d" },
+  { id: "master-chest", name: "몰튼 와이드체스트", room: "안방", kind: "cabinet", size: [1.2, .75, .45], position: [3.425, .375, .76], rotation: 0, color: "#9f7556" },
+  { id: "master-wardrobe", name: "영림 PS102 붙박이장", room: "안방", kind: "cabinet", size: [2.25, 2.2, .6], position: [2.06, 1.1, 3.08], rotation: Math.PI / 2, color: "#eceae3", fixed: true },
   { id: "master-ac", name: "안방 시스템에어컨", room: "안방", kind: "ceiling", size: [.85, .055, .36], position: [2.35, 2.25, 1.2], rotation: 0, color: "#f0f0eb", fixed: true },
   { id: "master-fan", name: "안방 실링팬", room: "안방", kind: "fan", size: [1.05, .2, 1.05], position: [3.75, 2.04, 2.35], rotation: 0, color: "#eee7dc", fixed: true },
 
@@ -121,7 +121,7 @@ const INITIAL_ITEMS: FurnitureItem[] = [
   { id: "entry-light", name: "음각 선반 간접조명", room: "현관", kind: "light", size: [.55, .06, .12], position: [-3.28, 1.35, -.35], rotation: Math.PI / 2, color: "#f0d6a2", fixed: true },
 ];
 
-const STORAGE_KEY = "sanghyeon-studio-v16-living-balcony-door";
+const STORAGE_KEY = "sanghyeon-studio-v17-master-storage-wall";
 
 const CATALOG = [
   { id: "jacomo-sofa", category: "가구", icon: Sofa, title: "자코모 휘몰라 네이비 소파", meta: "3150 × 1000 × 900", color: "#344654", kind: "sofa" as const, size: [3.15, .9, 1] as [number, number, number], room: "거실", position: [-.6, .45, 2.35] as [number, number, number] },
