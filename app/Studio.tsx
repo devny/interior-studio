@@ -79,11 +79,11 @@ const INITIAL_ITEMS: FurnitureItem[] = [
 
   // 안방 — 라메리트 몰튼 세트와 신규 붙박이장
   // 확장창을 막지 않도록 침대 헤드가 거실측 내벽을 향한다.
-  { id: "master-bed", name: "라메리트 몰튼 침대 A LK", room: "안방", kind: "bed", size: [1.8, 1, 2.28], position: [2.95, .5, 2.85], rotation: -Math.PI / 2, color: "#9c7658" },
-  // 두 출입문이 있는 상부 벽을 완전히 비우고, 수납 가구는 우측 벽과 발코니측 코너에 모은다.
+  { id: "master-bed", name: "라메리트 몰튼 침대 A LK", room: "안방", kind: "bed", size: [1.8, 1, 2.28], position: [4.55, .5, 2.85], rotation: Math.PI / 2, color: "#9c7658" },
+  // 두 출입문이 있는 상부 벽을 비우고, 침대와 붙박이장을 서로 마주보는 양쪽 벽에 둔다.
   { id: "master-vanity", name: "몰튼 화장대 + 거울", room: "안방", kind: "cabinet", size: [1.2, .85, .4], position: [4.75, .425, 4.05], rotation: 0, color: "#a77d5d" },
-  { id: "master-chest", name: "몰튼 와이드체스트", room: "안방", kind: "cabinet", size: [1.2, .75, .45], position: [5.52, .375, .9], rotation: Math.PI / 2, color: "#9f7556" },
-  { id: "master-wardrobe", name: "영림 PS102 붙박이장", room: "안방", kind: "cabinet", size: [2.25, 2.2, .6], position: [5.52, 1.1, 2.675], rotation: Math.PI / 2, color: "#eceae3", fixed: true },
+  { id: "master-chest", name: "몰튼 와이드체스트", room: "안방", kind: "cabinet", size: [1.2, .75, .45], position: [3.02, .375, 4.04], rotation: 0, color: "#9f7556" },
+  { id: "master-wardrobe", name: "영림 PS102 붙박이장", room: "안방", kind: "cabinet", size: [2.25, 2.2, .6], position: [2.06, 1.1, 2.75], rotation: Math.PI / 2, color: "#eceae3", fixed: true },
   { id: "master-ac", name: "안방 시스템에어컨", room: "안방", kind: "ceiling", size: [.85, .055, .36], position: [2.35, 2.25, 1.2], rotation: 0, color: "#f0f0eb", fixed: true },
   { id: "master-fan", name: "안방 실링팬", room: "안방", kind: "fan", size: [1.05, .2, 1.05], position: [3.75, 2.04, 2.35], rotation: 0, color: "#eee7dc", fixed: true },
 
@@ -121,12 +121,12 @@ const INITIAL_ITEMS: FurnitureItem[] = [
   { id: "entry-light", name: "음각 선반 간접조명", room: "현관", kind: "light", size: [.55, .06, .12], position: [-3.28, 1.35, -.35], rotation: Math.PI / 2, color: "#f0d6a2", fixed: true },
 ];
 
-const STORAGE_KEY = "sanghyeon-studio-v14-clear-master-doors";
+const STORAGE_KEY = "sanghyeon-studio-v15-master-layout";
 
 const CATALOG = [
   { id: "jacomo-sofa", category: "가구", icon: Sofa, title: "자코모 휘몰라 네이비 소파", meta: "3150 × 1000 × 900", color: "#344654", kind: "sofa" as const, size: [3.15, .9, 1] as [number, number, number], room: "거실", position: [-.6, .45, 2.35] as [number, number, number] },
   { id: "ramerit-table", category: "가구", icon: SquareStack, title: "라메리트 바움오크 페닉스 오벌 식탁", meta: "1800 × 950 × 750", color: "#d8d2c7", kind: "table" as const, size: [1.8, .75, .95] as [number, number, number], room: "거실 확장부", position: [-.6, .375, 4.7] as [number, number, number] },
-  { id: "ramerit-bed", category: "가구", icon: Box, title: "라메리트 몰튼 침대 A LK", meta: "1800 × 2280 × 1000", color: "#9c7658", kind: "bed" as const, size: [1.8, 1, 2.28] as [number, number, number], room: "안방", position: [2.95, .5, 2.85] as [number, number, number], rotation: -Math.PI / 2 },
+  { id: "ramerit-bed", category: "가구", icon: Box, title: "라메리트 몰튼 침대 A LK", meta: "1800 × 2280 × 1000", color: "#9c7658", kind: "bed" as const, size: [1.8, 1, 2.28] as [number, number, number], room: "안방", position: [4.55, .5, 2.85] as [number, number, number], rotation: Math.PI / 2 },
   { id: "oliver-daybed", category: "가구", icon: Box, title: "안데르센 올리버 하이가드 SS", meta: "1200 × 2120 × 960", color: "#b58a64", kind: "daybed" as const, size: [1.2, .96, 2.12] as [number, number, number], room: "아이방", position: [4.7, .48, -2.55] as [number, number, number] },
   { id: "iloom-shelf", category: "가구", icon: Box, title: "일룸 에디키즈 슬라이딩 3단", meta: "1190 × 392 × 1054.5", color: "#d8d6ce", kind: "shelf" as const, size: [1.19, 1.0545, .392] as [number, number, number], room: "아이방", position: [2.6, .527, -3.18] as [number, number, number], rotation: Math.PI / 2 },
   { id: "upia-desk", category: "가구", icon: SquareStack, title: "우피아 모션데스크 1800", meta: "1800 × 750 × 740", color: "#c3aa8b", kind: "desk" as const, size: [1.8, .74, .75] as [number, number, number], room: "작업방", position: [-4.35, .37, 1.15] as [number, number, number] },
