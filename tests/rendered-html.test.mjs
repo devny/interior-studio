@@ -54,3 +54,14 @@ test("supports direct furniture move and rotation controls", async () => {
   assert.match(studio, /원래 위치로 되돌렸어요/);
   assert.match(studio, /event\.code === "KeyR"/);
 });
+
+test("keeps expanded rooms and retained balconies structurally distinct", async () => {
+  const studio = await readFile(new URL("../app/Studio.tsx", import.meta.url), "utf8");
+  assert.match(studio, /name: "침실2 · 확장"/);
+  assert.match(studio, /name: "거실 · 확장"/);
+  assert.match(studio, /name: "안방 발코니"/);
+  assert.match(studio, /SlidingBalconyDoor x=\{9\.65\} z=\{9\.87\} width=\{4\.1\}/);
+  assert.match(studio, /BalconySideDoor x=\{7\.6\} z=\{10\.17\}/);
+  assert.match(studio, /SlidingBalconyDoor x=\{5\.65\} z=\{1\.6\} width=\{1\.9\}/);
+  assert.match(studio, /height: 2\.3, y: 1\.15, material: "glass"/);
+});

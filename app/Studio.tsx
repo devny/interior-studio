@@ -278,11 +278,12 @@ const WALLS: WallSpec[] = [
   { x: 9.65, z: 9.87, w: 4.1, d: .1, height: 2.05, y: 1.025, material: "glass" },
 
   // 상부 발코니 창호와 확장된 전면 외창
-  { x: 5.65, z: 1.6, w: 1.9, d: .1, height: .92, y: .46, material: "glass" },
-  { x: 9.95, z: 1.6, w: 3.5, d: .1, height: .92, y: .46, material: "glass" },
-  { x: 1.45, z: 11.17, w: 2.9, d: .12, height: 1.05, y: .53, material: "glass" },
-  { x: 5.25, z: 11.17, w: 4.7, d: .12, height: 1.05, y: .53, material: "glass" },
-  { x: 9.65, z: 11.17, w: 4.1, d: .12, height: 1.05, y: .53, material: "glass" },
+  // 주방·침실3의 비확장 발코니는 방 내부에서 출입하는 전고 슬라이딩 창호를 유지한다.
+  { x: 5.65, z: 1.6, w: 1.9, d: .1, height: 2.05, y: 1.025, material: "glass" },
+  { x: 9.95, z: 1.6, w: 3.5, d: .1, height: 2.05, y: 1.025, material: "glass" },
+  { x: 1.45, z: 11.17, w: 2.9, d: .12, height: 2.3, y: 1.15, material: "glass" },
+  { x: 5.25, z: 11.17, w: 4.7, d: .12, height: 2.3, y: 1.15, material: "glass" },
+  { x: 9.65, z: 11.17, w: 4.1, d: .12, height: 2.3, y: 1.15, material: "glass" },
 ];
 
 function RoomFloor({ room, showLabel }: { room: RoomSpec; showLabel: boolean }) {
@@ -467,6 +468,32 @@ function BalconySideDoor({ x, z, width }: { x: number; z: number; width: number 
       <mesh position={[0, -1.01, .025]}><boxGeometry args={[width, .055, .06]} /><meshStandardMaterial color={frame} roughness={.72} /></mesh>
       {[-width / 2, width / 2].map((frameX) => <mesh key={frameX} position={[frameX, 0, .025]}><boxGeometry args={[.055, 2.05, .06]} /><meshStandardMaterial color={frame} roughness={.72} /></mesh>)}
       <mesh position={[width * .28, 0, .075]}><boxGeometry args={[.025, .32, .035]} /><meshStandardMaterial color="#8d8c87" metalness={.72} roughness={.2} /></mesh>
+    </group>
+  );
+}
+
+function SlidingBalconyDoor({ x, z, width, panels = 4, handles = true }: { x: number; z: number; width: number; panels?: number; handles?: boolean }) {
+  const frame = MATERIALS.ps102.color;
+  const panelWidth = width / panels;
+  return (
+    <group position={[planX(x), 1.025, planZ(z + .006)]}>
+      {Array.from({ length: panels }, (_, index) => {
+        const panelX = -width / 2 + panelWidth * (index + .5);
+        return <mesh key={`glass-${index}`} position={[panelX, 0, .008 + (index % 2) * .012]}>
+          <boxGeometry args={[panelWidth - .045, 1.94, .022]} />
+          <meshStandardMaterial color="#c7d6d5" transparent opacity={.28} roughness={.12} metalness={.04} />
+        </mesh>;
+      })}
+      <mesh position={[0, 1.01, .03]}><boxGeometry args={[width + .06, .06, .075]} /><meshStandardMaterial color={frame} roughness={.72} /></mesh>
+      <mesh position={[0, -1.01, .03]}><boxGeometry args={[width + .06, .07, .075]} /><meshStandardMaterial color={frame} roughness={.72} /></mesh>
+      {Array.from({ length: panels + 1 }, (_, index) => -width / 2 + panelWidth * index).map((panelX) => <mesh key={`frame-${panelX}`} position={[panelX, 0, .035]}>
+        <boxGeometry args={[.055, 2.04, .075]} />
+        <meshStandardMaterial color={frame} roughness={.72} />
+      </mesh>)}
+      {handles && <>
+        <mesh position={[panelWidth * .38, 0, .085]}><boxGeometry args={[.025, .34, .025]} /><meshStandardMaterial color="#84847f" metalness={.72} roughness={.2} /></mesh>
+        <mesh position={[-panelWidth * .38, 0, .085]}><boxGeometry args={[.025, .34, .025]} /><meshStandardMaterial color="#84847f" metalness={.72} roughness={.2} /></mesh>
+      </>}
     </group>
   );
 }
@@ -931,6 +958,12 @@ function ApartmentScene({ finish, view, items, selectedId, invalidId, interactin
       <DoorOpening x={.15} z={4.53} axis="horizontal" width={1.05} rotation={0} wallColor={wall} doorColor={MATERIALS.ps102.color} />
       <MiddleDoor x={2.8} z={4.65} width={.9} wallColor={wall} />
       <BalconySideDoor x={7.6} z={10.17} width={.85} />
+      <SlidingBalconyDoor x={9.65} z={9.87} width={4.1} panels={4} />
+      <SlidingBalconyDoor x={5.65} z={1.6} width={1.9} panels={2} />
+      <SlidingBalconyDoor x={9.95} z={1.6} width={3.5} panels={4} />
+      <SlidingBalconyDoor x={1.45} z={11.17} width={2.9} panels={3} handles={false} />
+      <SlidingBalconyDoor x={5.25} z={11.17} width={4.7} panels={4} handles={false} />
+      <SlidingBalconyDoor x={9.65} z={11.17} width={4.1} panels={4} handles={false} />
       <DoorOpening x={1.85} z={6.04} axis="horizontal" width={.9} rotation={0} wallColor={wall} />
       <DoorOpening x={3.24} z={4.53} axis="horizontal" width={.66} rotation={0} wallColor={wall} />
       <DoorOpening x={8.48} z={4.53} axis="horizontal" width={.76} rotation={0} wallColor={wall} />
@@ -1170,7 +1203,7 @@ export function Studio() {
             <div className="property-section"><div className="property-heading"><span>배치 상태</span></div><div className={`placement-ok ${selectedIssue ? "invalid" : ""}`}><span>{selectedIssue ? "!" : "✓"}</span><div><strong>{selectedIssue ?? "배치 가능한 위치"}</strong><small>{selectedIssue ? "이동하거나 90° 회전해 간격을 확보하세요" : "도면 안에서 다른 제품과 겹치지 않아요"}</small></div></div></div>
             <div className="property-section surface"><div className="property-heading"><span>소재</span></div><div className="material-chip"><span style={{background:selected.color}} /><div><strong>기존 제품 마감</strong><small>보유 가구 · 변경 없음</small></div></div></div>
           </> : <div className="empty-selection"><div><Move3D size={24} /></div><h2>가구를 선택해보세요</h2><p>크기와 위치를 확인하고<br/>정확하게 배치할 수 있어요.</p></div>}
-          <div className="plan-facts"><span className="eyebrow">PROJECTBOOK FACTS</span><ul><li><span>01</span>제공 CAD 도면을 좌우반전</li><li><span>02</span>침실2·거실 확장, 안방 발코니 유지·거실측 출입문</li><li><span>03</span>식탁은 거실 확장부에만 배치</li><li><span>04</span>보유품·신규 설비 {INITIAL_ITEMS.length}개 반영</li></ul></div>
+          <div className="plan-facts"><span className="eyebrow">PROJECTBOOK FACTS</span><ul><li><span>01</span>제공 도면의 좌우반전 구조·실측 치수 적용</li><li><span>02</span>침실2·거실 확장 / 안방·주방·침실3 발코니 유지</li><li><span>03</span>안방 발코니는 안방 슬라이딩창과 거실측 터닝도어로 출입</li><li><span>04</span>보유품·신규 설비 {INITIAL_ITEMS.length}개 반영</li></ul></div>
         </aside>
       </section>
     </main>
