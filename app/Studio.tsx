@@ -121,7 +121,7 @@ const INITIAL_ITEMS: FurnitureItem[] = [
   { id: "entry-light", name: "음각 선반 간접조명", room: "현관", kind: "light", size: [.55, .06, .12], position: [-3.28, 1.35, -.35], rotation: Math.PI / 2, color: "#f0d6a2", fixed: true },
 ];
 
-const STORAGE_KEY = "sanghyeon-studio-v15-master-layout";
+const STORAGE_KEY = "sanghyeon-studio-v16-living-balcony-door";
 
 const CATALOG = [
   { id: "jacomo-sofa", category: "가구", icon: Sofa, title: "자코모 휘몰라 네이비 소파", meta: "3150 × 1000 × 900", color: "#344654", kind: "sofa" as const, size: [3.15, .9, 1] as [number, number, number], room: "거실", position: [-.6, .45, 2.35] as [number, number, number] },
@@ -267,7 +267,10 @@ const WALLS: WallSpec[] = [
 
   // 하부 세 공간의 경계. 거실과 침실2는 확장, 안방은 기존 발코니를 유지한다.
   { x: 2.9, z: 8.61, w: .14, d: 5.13 },
-  { x: 7.6, z: 8.61, w: .14, d: 5.13 },
+  { x: 7.6, z: 7.955, w: .14, d: 3.83 },
+  // 거실 확장부에서 비확장 안방 발코니로 이어지는 출입문 양옆 벽
+  { x: 7.6, z: 10.02, w: .14, d: .3 },
+  { x: 7.6, z: 11.095, w: .14, d: .15 },
 
   // 안방 비확장 발코니 경계창
   { x: 9.65, z: 9.87, w: 4.1, d: .1, height: 2.05, y: 1.025, material: "glass" },
@@ -446,6 +449,22 @@ function MiddleDoor({ x, z, width, wallColor }: { x: number; z: number; width: n
         <mesh position={[0, -.34, .024]}><boxGeometry args={[width, .045, .055]} /><meshStandardMaterial color={frame} /></mesh>
         <mesh position={[0, 0, .024]}><boxGeometry args={[.04, 2.02, .055]} /><meshStandardMaterial color={frame} /></mesh>
       </group>
+    </group>
+  );
+}
+
+function BalconySideDoor({ x, z, width }: { x: number; z: number; width: number }) {
+  const frame = MATERIALS.ps102.color;
+  return (
+    <group position={[planX(x), 1.03, planZ(z + width / 2)]} rotation-y={Math.PI / 2}>
+      <mesh castShadow>
+        <boxGeometry args={[width - .08, 1.92, .03]} />
+        <meshStandardMaterial color="#c9d7d5" transparent opacity={.4} roughness={.16} metalness={.05} />
+      </mesh>
+      <mesh position={[0, 1.01, .025]}><boxGeometry args={[width, .055, .06]} /><meshStandardMaterial color={frame} roughness={.72} /></mesh>
+      <mesh position={[0, -1.01, .025]}><boxGeometry args={[width, .055, .06]} /><meshStandardMaterial color={frame} roughness={.72} /></mesh>
+      {[-width / 2, width / 2].map((frameX) => <mesh key={frameX} position={[frameX, 0, .025]}><boxGeometry args={[.055, 2.05, .06]} /><meshStandardMaterial color={frame} roughness={.72} /></mesh>)}
+      <mesh position={[width * .28, 0, .075]}><boxGeometry args={[.025, .32, .035]} /><meshStandardMaterial color="#8d8c87" metalness={.72} roughness={.2} /></mesh>
     </group>
   );
 }
@@ -807,6 +826,7 @@ function ApartmentScene({ finish, view, items, selectedId, invalidId, onSelect, 
       <InteriorTrim />
       <DoorOpening x={.15} z={4.53} axis="horizontal" width={1.05} rotation={0} wallColor={wall} doorColor={MATERIALS.ps102.color} />
       <MiddleDoor x={2.8} z={4.65} width={.9} wallColor={wall} />
+      <BalconySideDoor x={7.6} z={10.17} width={.85} />
       <DoorOpening x={1.85} z={6.04} axis="horizontal" width={.9} rotation={0} wallColor={wall} />
       <DoorOpening x={3.24} z={4.53} axis="horizontal" width={.66} rotation={0} wallColor={wall} />
       <DoorOpening x={8.48} z={4.53} axis="horizontal" width={.76} rotation={0} wallColor={wall} />
@@ -958,7 +978,7 @@ export function Studio() {
             <div className="property-section"><div className="property-heading"><span>배치 상태</span></div><div className={`placement-ok ${selectedIssue ? "invalid" : ""}`}><span>{selectedIssue ? "!" : "✓"}</span><div><strong>{selectedIssue ?? "배치 가능한 위치"}</strong><small>{selectedIssue ? "이동하거나 90° 회전해 간격을 확보하세요" : "도면 안에서 다른 제품과 겹치지 않아요"}</small></div></div></div>
             <div className="property-section surface"><div className="property-heading"><span>소재</span></div><div className="material-chip"><span style={{background:selected.color}} /><div><strong>기존 제품 마감</strong><small>보유 가구 · 변경 없음</small></div></div></div>
           </> : <div className="empty-selection"><div><Move3D size={24} /></div><h2>가구를 선택해보세요</h2><p>크기와 위치를 확인하고<br/>정확하게 배치할 수 있어요.</p></div>}
-          <div className="plan-facts"><span className="eyebrow">PROJECTBOOK FACTS</span><ul><li><span>01</span>제공 CAD 도면을 좌우반전</li><li><span>02</span>침실2·거실 확장, 안방 발코니 유지</li><li><span>03</span>식탁은 거실 확장부에만 배치</li><li><span>04</span>보유품·신규 설비 {INITIAL_ITEMS.length}개 반영</li></ul></div>
+          <div className="plan-facts"><span className="eyebrow">PROJECTBOOK FACTS</span><ul><li><span>01</span>제공 CAD 도면을 좌우반전</li><li><span>02</span>침실2·거실 확장, 안방 발코니 유지·거실측 출입문</li><li><span>03</span>식탁은 거실 확장부에만 배치</li><li><span>04</span>보유품·신규 설비 {INITIAL_ITEMS.length}개 반영</li></ul></div>
         </aside>
       </section>
     </main>
