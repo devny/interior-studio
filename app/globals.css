@@ -130,6 +130,8 @@ button { color: inherit; }
 .rotate-button, .delete-button { height: 31px; border: 1px solid var(--line); border-radius: 7px; background: white; font-size: 9px; display: flex; align-items: center; justify-content: center; gap: 6px; cursor: pointer; }
 .delete-button { color: #a74f43; border-color: #ead6d1; background: #fff9f7; }
 .rotate-button:disabled, .delete-button:disabled { opacity: .45; cursor: not-allowed; }
+.transform-readout { margin-top: 8px; display: grid; grid-template-columns: repeat(3, 1fr); gap: 4px; }
+.transform-readout span { padding: 6px 4px; border-radius: 6px; background: #f0f0eb; color: #71736c; text-align: center; font: 600 8px/1 var(--font-geist-mono); }
 .placement-ok { border-radius: 8px; background: #eaf0e7; color: #597052; padding: 9px; display: flex; align-items: center; gap: 8px; }
 .placement-ok > span { width: 21px; height: 21px; border-radius: 50%; background: #7d9673; color: white; display: grid; place-items: center; font-size: 10px; }
 .placement-ok strong, .placement-ok small { display: block; }

@@ -44,3 +44,13 @@ test("keeps the projectbook products and room plan in source", async () => {
   assert.match(studio, /const PLAN_DEPTH = 11\.17/);
   assert.match(studio, /function ApplianceModel/);
 });
+
+test("supports direct furniture move and rotation controls", async () => {
+  const studio = await readFile(new URL("../app/Studio.tsx", import.meta.url), "utf8");
+  assert.match(studio, /setPointerCapture/);
+  assert.match(studio, /intersectPlane/);
+  assert.match(studio, /Math\.PI \/ 12/);
+  assert.match(studio, /enabled=\{!interactingId\}/);
+  assert.match(studio, /원래 위치로 되돌렸어요/);
+  assert.match(studio, /event\.key\.toLowerCase\(\) === "r"/);
+});

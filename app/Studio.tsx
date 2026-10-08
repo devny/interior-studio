@@ -1,6 +1,6 @@
 "use client";
 
-import { Canvas, useThree } from "@react-three/fiber";
+import { Canvas, useThree, type ThreeEvent } from "@react-three/fiber";
 import { ContactShadows, Environment, Grid, Html, OrbitControls, RoundedBox, useTexture } from "@react-three/drei";
 import {
   Box,
@@ -45,6 +45,8 @@ type FurnitureItem = {
   fixed?: boolean;
   integrated?: boolean;
 };
+
+type FurnitureTransform = Pick<FurnitureItem, "position" | "rotation">;
 
 const FINISHES: Record<FinishKey, { name: string; sub: string; color: string; texture: string }> = {
   "warm-white": { name: "디아망 회벽 크림화이트", sub: "LX Z:IN PR002-12 · 천장 대안 프리모 99126-1", color: "#eee9df", texture: "/materials/wallpaper-plaster-real.webp" },
@@ -698,22 +700,110 @@ function ApplianceModel({ item }: { item: FurnitureItem }) {
   </>;
 }
 
-function FurnitureModel({ item, selected, invalid, view, onSelect }: { item: FurnitureItem; selected: boolean; invalid: boolean; view: "3d" | "2d"; onSelect: () => void }) {
+function FurnitureModel({ item, selected, invalid, view, onSelect, onMove, onRotate, onInteractionStart, onInteractionEnd }: {
+  item: FurnitureItem;
+  selected: boolean;
+  invalid: boolean;
+  view: "3d" | "2d";
+  onSelect: () => void;
+  onMove: (position: [number, number, number]) => void;
+  onRotate: (rotation: number) => void;
+  onInteractionStart: () => void;
+  onInteractionEnd: (origin: FurnitureTransform) => void;
+}) {
   const [w, h, d] = item.size;
+  const dragPlane = useMemo(() => new THREE.Plane(new THREE.Vector3(0, 1, 0), 0), []);
+  const dragOrigin = useRef<FurnitureTransform | null>(null);
+  const grabOffset = useRef(new THREE.Vector3());
+  const pointerStart = useRef(new THREE.Vector3());
+  const moving = useRef(false);
+  const rotating = useRef(false);
+
+  const floorPoint = (event: ThreeEvent<PointerEvent>) => {
+    const point = new THREE.Vector3();
+    return event.ray.intersectPlane(dragPlane, point) ? point : null;
+  };
+
+  const capture = (event: ThreeEvent<PointerEvent>) => {
+    event.stopPropagation();
+    onSelect();
+    if (item.fixed) return false;
+    event.target.setPointerCapture(event.pointerId);
+    dragOrigin.current = { position: [...item.position], rotation: item.rotation };
+    onInteractionStart();
+    (event.nativeEvent.target as HTMLElement).style.cursor = "grabbing";
+    return true;
+  };
+
+  const startMove = (event: ThreeEvent<PointerEvent>) => {
+    const point = floorPoint(event);
+    if (!point || !capture(event)) return;
+    moving.current = true;
+    pointerStart.current.copy(point);
+    grabOffset.current.set(point.x - item.position[0], 0, point.z - item.position[2]);
+  };
+
+  const startRotate = (event: ThreeEvent<PointerEvent>) => {
+    if (!capture(event)) return;
+    rotating.current = true;
+  };
+
+  const updateInteraction = (event: ThreeEvent<PointerEvent>) => {
+    if (!moving.current && !rotating.current) return;
+    event.stopPropagation();
+    const point = floorPoint(event);
+    if (!point) return;
+    if (moving.current) {
+      if (point.distanceTo(pointerStart.current) < .035) return;
+      const snap = .1;
+      onMove([
+        Math.round((point.x - grabOffset.current.x) / snap) * snap,
+        item.position[1],
+        Math.round((point.z - grabOffset.current.z) / snap) * snap,
+      ]);
+    } else {
+      const angle = Math.atan2(point.x - item.position[0], point.z - item.position[2]);
+      const snap = Math.PI / 12;
+      onRotate(Math.round(angle / snap) * snap);
+    }
+  };
+
+  const finishInteraction = (event: ThreeEvent<PointerEvent>) => {
+    if (!moving.current && !rotating.current) return;
+    event.stopPropagation();
+    if (event.target.hasPointerCapture(event.pointerId)) event.target.releasePointerCapture(event.pointerId);
+    moving.current = false;
+    rotating.current = false;
+    (event.nativeEvent.target as HTMLElement).style.cursor = "grab";
+    if (dragOrigin.current) onInteractionEnd(dragOrigin.current);
+    dragOrigin.current = null;
+  };
+
   return (
-    <group position={item.position} rotation-y={item.rotation} onClick={(event) => { event.stopPropagation(); onSelect(); }}>
-      {selected && view === "3d" && (
-        <mesh position={[0, .015 - item.position[1], 0]} rotation-x={-Math.PI / 2}>
-          <ringGeometry args={[Math.max(w, d) * .55, Math.max(w, d) * .62, 48]} />
-          <meshBasicMaterial color={invalid ? "#c83f3f" : "#d65a36"} transparent opacity={.86} />
-        </mesh>
-      )}
-      {selected && view === "2d" && (
+    <group
+      position={item.position}
+      rotation-y={item.rotation}
+      onClick={(event) => { event.stopPropagation(); onSelect(); }}
+      onPointerDown={startMove}
+      onPointerMove={updateInteraction}
+      onPointerUp={finishInteraction}
+      onPointerCancel={finishInteraction}
+      onPointerOver={(event) => { event.stopPropagation(); (event.nativeEvent.target as HTMLElement).style.cursor = item.fixed ? "pointer" : "grab"; }}
+      onPointerOut={(event) => { if (!moving.current && !rotating.current) (event.nativeEvent.target as HTMLElement).style.cursor = "default"; }}
+    >
+      {selected && (
         <mesh position={[0, .014 - item.position[1], 0]} rotation-x={-Math.PI / 2}>
           <planeGeometry args={[w + .16, d + .16]} />
-          <meshBasicMaterial color={invalid ? "#c83f3f" : "#d65a36"} transparent opacity={.18} depthWrite={false} />
+          <meshBasicMaterial color={item.fixed ? "#777b76" : invalid ? "#c83f3f" : "#d65a36"} transparent opacity={view === "2d" ? .18 : .12} depthWrite={false} />
         </mesh>
       )}
+      {selected && !item.fixed && <group position={[0, .045 - item.position[1], d / 2 + .32]}>
+        <mesh position={[0, 0, -.16]} rotation-x={Math.PI / 2}><cylinderGeometry args={[.018, .018, .32, 12]} /><meshBasicMaterial color={invalid ? "#c83f3f" : "#d65a36"} /></mesh>
+        <mesh onPointerDown={startRotate} onPointerMove={updateInteraction} onPointerUp={finishInteraction} onPointerCancel={finishInteraction}>
+          <sphereGeometry args={[.13, 20, 20]} />
+          <meshBasicMaterial color={invalid ? "#c83f3f" : "#d65a36"} />
+        </mesh>
+      </group>}
       {item.kind === "table" && (item.name.includes("페닉스 오벌") ? <>
         {/* 라메리트 1800 오벌: 얇은 FENIX NTM 상판, 오크 하부판과 원목 다리 */}
         <mesh position={[0, h / 2 - .035, 0]} scale={[w, 1, d]} castShadow>
@@ -800,12 +890,26 @@ function FurnitureModel({ item, selected, invalid, view, onSelect }: { item: Fur
         <mesh><cylinderGeometry args={[.11, .14, .1, 24]} /><meshStandardMaterial color={item.color} /></mesh>
         {[0, Math.PI*2/3, Math.PI*4/3].map((angle) => <RoundedBox key={angle} args={[w*.46, .025, .13]} radius={.05} position={[Math.cos(angle)*w*.23, 0, Math.sin(angle)*w*.23]} rotation-y={-angle} castShadow><meshStandardMaterial color={item.color} roughness={.7} /></RoundedBox>)}
       </>}
-      {selected && <Html position={[0, h / 2 + .42, 0]} center className="object-label"><strong>{item.name}</strong><span>{Math.round(w*1000)} × {Math.round(d*1000)}</span></Html>}
+      {selected && <Html position={[0, h / 2 + .42, 0]} center className="object-label"><strong>{item.name}</strong><span>{item.fixed ? "시공 고정 · 이동 불가" : `${Math.round(w*1000)} × ${Math.round(d*1000)} · 드래그 이동`}</span></Html>}
     </group>
   );
 }
 
-function ApartmentScene({ finish, view, items, selectedId, invalidId, onSelect, showReference, referenceOpacity }: { finish: FinishKey; view: "3d" | "2d"; items: FurnitureItem[]; selectedId: string | null; invalidId: string | null; onSelect: (id: string | null) => void; showReference: boolean; referenceOpacity: number }) {
+function ApartmentScene({ finish, view, items, selectedId, invalidId, interactingId, onSelect, onMove, onRotate, onInteractionStart, onInteractionEnd, showReference, referenceOpacity }: {
+  finish: FinishKey;
+  view: "3d" | "2d";
+  items: FurnitureItem[];
+  selectedId: string | null;
+  invalidId: string | null;
+  interactingId: string | null;
+  onSelect: (id: string | null) => void;
+  onMove: (id: string, position: [number, number, number]) => void;
+  onRotate: (id: string, rotation: number) => void;
+  onInteractionStart: (id: string) => void;
+  onInteractionEnd: (id: string, origin: FurnitureTransform) => void;
+  showReference: boolean;
+  referenceOpacity: number;
+}) {
   const wall = FINISHES[finish].color;
   return (
     <>
@@ -838,10 +942,21 @@ function ApartmentScene({ finish, view, items, selectedId, invalidId, onSelect, 
       <KitchenFridgeCabinet />
       <KitchenWallCabinets />
       <EntryCabinetLighting />
-      {items.map((item) => <FurnitureModel key={item.id} item={item} selected={selectedId === item.id} invalid={invalidId === item.id} view={view} onSelect={() => onSelect(item.id)} />)}
+      {items.map((item) => <FurnitureModel
+        key={item.id}
+        item={item}
+        selected={selectedId === item.id}
+        invalid={invalidId === item.id}
+        view={view}
+        onSelect={() => onSelect(item.id)}
+        onMove={(position) => onMove(item.id, position)}
+        onRotate={(rotation) => onRotate(item.id, rotation)}
+        onInteractionStart={() => onInteractionStart(item.id)}
+        onInteractionEnd={(origin) => onInteractionEnd(item.id, origin)}
+      />)}
       <ContactShadows opacity={.28} scale={16} blur={2.3} far={4} />
       <Environment preset="apartment" environmentIntensity={.35} />
-      <OrbitControls key={view} makeDefault enableDamping target={[0, 0, view === "2d" ? 1.4 : 0]} maxPolarAngle={view === "2d" ? .01 : Math.PI / 2.08} minPolarAngle={view === "2d" ? 0 : .35} enableRotate={view !== "2d"} />
+      <OrbitControls key={view} makeDefault enabled={!interactingId} enableDamping target={[0, 0, view === "2d" ? 1.4 : 0]} maxPolarAngle={view === "2d" ? .01 : Math.PI / 2.08} minPolarAngle={view === "2d" ? 0 : .35} enableRotate={view !== "2d"} />
     </>
   );
 }
@@ -851,6 +966,7 @@ export function Studio() {
   const [finish, setFinish] = useState<FinishKey>("warm-white");
   const [items, setItems] = useState<FurnitureItem[]>(INITIAL_ITEMS);
   const [selectedId, setSelectedId] = useState<string | null>(null);
+  const [interactingId, setInteractingId] = useState<string | null>(null);
   const [category, setCategory] = useState("가구");
   const [query, setQuery] = useState("");
   const [actionNotice, setActionNotice] = useState<string | null>(null);
@@ -888,6 +1004,40 @@ export function Studio() {
     setActionNotice(message);
     if (noticeTimer.current) window.clearTimeout(noticeTimer.current);
     noticeTimer.current = window.setTimeout(() => setActionNotice(null), 2200);
+  };
+
+  const moveItem = (id: string, position: [number, number, number]) => {
+    setItems((current) => current.map((item) => item.id === id ? { ...item, position } : item));
+    setSaved(false);
+  };
+
+  const rotateItem = (id: string, rotation: number) => {
+    setItems((current) => current.map((item) => item.id === id ? { ...item, rotation } : item));
+    setSaved(false);
+  };
+
+  const finishInteraction = (id: string, origin: FurnitureTransform) => {
+    const candidate = items.find((item) => item.id === id);
+    const issue = candidate ? placementIssue(candidate, items) : null;
+    if (issue) {
+      setItems((current) => current.map((item) => item.id === id ? { ...item, ...origin } : item));
+      showNotice(`${issue} 원래 위치로 되돌렸어요`);
+    } else if (candidate) {
+      showNotice(`${candidate.name} 배치를 변경했어요`);
+    }
+    setInteractingId(null);
+    setSaved(false);
+  };
+
+  const rotateSelected = () => {
+    if (!selected || selected.fixed) return;
+    const candidate = { ...selected, rotation: selected.rotation + Math.PI / 2 };
+    const issue = placementIssue(candidate, items);
+    if (issue) {
+      showNotice(`${issue} 회전할 공간이 부족해요`);
+      return;
+    }
+    updateSelected({ rotation: candidate.rotation });
   };
 
   const addCatalogItem = (product: CatalogItem) => {
@@ -934,6 +1084,34 @@ export function Studio() {
     showNotice("지정 마감재와 기획서 기본 배치를 복원했어요");
   };
 
+  useEffect(() => {
+    const onKeyDown = (event: KeyboardEvent) => {
+      const target = event.target as HTMLElement | null;
+      if (target?.closest("input, textarea, button, select")) return;
+      if (event.key === "Escape") {
+        setSelectedId(null);
+        return;
+      }
+      if (!selected || selected.fixed) return;
+      const step = event.shiftKey ? .01 : .1;
+      const moves: Record<string, [number, number]> = {
+        ArrowUp: [0, -step], ArrowDown: [0, step], ArrowLeft: [-step, 0], ArrowRight: [step, 0],
+      };
+      if (moves[event.key]) {
+        event.preventDefault();
+        nudge(...moves[event.key]);
+      } else if (event.key.toLowerCase() === "r") {
+        event.preventDefault();
+        rotateSelected();
+      } else if (event.key === "Delete" || event.key === "Backspace") {
+        event.preventDefault();
+        deleteSelected();
+      }
+    };
+    window.addEventListener("keydown", onKeyDown);
+    return () => window.removeEventListener("keydown", onKeyDown);
+  });
+
   return (
     <main className="studio-shell">
       <header className="topbar">
@@ -960,13 +1138,27 @@ export function Studio() {
             <button className={showReference ? "active" : ""} aria-pressed={showReference} onClick={() => setShowReference((current) => !current)}><Eye size={14} /> 도면 대조</button>
             {showReference && <label><span>투명도</span><input aria-label="도면 투명도" type="range" min="0.15" max="0.85" step="0.05" value={referenceOpacity} onChange={(event) => setReferenceOpacity(Number(event.target.value))} /></label>}
           </div>}
-          <Canvas shadows dpr={[1, 1.65]} camera={{ position: [11.6, 10.8, 13.2], fov: 38 }}>
-            <Suspense fallback={null}><ApartmentScene finish={finish} view={view} items={items} selectedId={selectedId} invalidId={selectedIssue ? selectedId : null} onSelect={setSelectedId} showReference={showReference} referenceOpacity={referenceOpacity} /></Suspense>
+          <Canvas shadows dpr={[1, 1.65]} camera={{ position: [11.6, 10.8, 13.2], fov: 38 }} onPointerMissed={() => setSelectedId(null)}>
+            <Suspense fallback={null}><ApartmentScene
+              finish={finish}
+              view={view}
+              items={items}
+              selectedId={selectedId}
+              invalidId={selectedIssue ? selectedId : null}
+              interactingId={interactingId}
+              onSelect={setSelectedId}
+              onMove={moveItem}
+              onRotate={rotateItem}
+              onInteractionStart={setInteractingId}
+              onInteractionEnd={finishInteraction}
+              showReference={showReference}
+              referenceOpacity={referenceOpacity}
+            /></Suspense>
           </Canvas>
           <div className="orientation"><span>N</span><div /></div>
           {actionNotice && <div className="action-notice"><Sparkles size={14} />{actionNotice}</div>}
           {selected && <div className={`selection-summary ${selectedIssue ? "invalid" : ""}`}><strong>{selected.name}</strong><span>{selectedIssue ?? `${Math.round(selected.size[0]*1000)} × ${Math.round(selected.size[2]*1000)} mm · 배치됨`}</span></div>}
-          <div className="canvas-help"><Move3D size={15} /> 드래그로 둘러보고, 스크롤로 확대하세요</div>
+          <div className="canvas-help"><Move3D size={15} /> {selected?.fixed ? "시공 고정 제품 · 위치 변경 불가" : selected ? "가구 드래그: 이동 · 주황 핸들: 15° 회전 · R: 90°" : "빈 공간 드래그: 둘러보기 · 가구 드래그: 이동"}</div>
           <div className="room-legend"><span><i style={{background:"#b89973"}} />거실 4,700</span><span><i style={{background:"#ddd1bc"}} />침실 2,900</span><span><i style={{background:"#d9cdb8"}} />안방 4,100</span></div>
         </section>
 
@@ -974,7 +1166,7 @@ export function Studio() {
           {selected ? <>
             <div className="selection-title"><span className="selection-icon">{selected.kind === "table" ? <SquareStack size={20} /> : <Box size={20} />}</span><div><span className="eyebrow">SELECTED</span><h2>{selected.name}</h2><p>{selected.room}</p></div></div>
             <div className="property-section"><div className="property-heading"><span>제품 규격</span><button>실측값</button></div><div className="measure-grid"><label>너비<strong>{Math.round(selected.size[0]*1000)}<small> mm</small></strong></label><label>깊이<strong>{Math.round(selected.size[2]*1000)}<small> mm</small></strong></label><label>높이<strong>{Math.round(selected.size[1]*1000)}<small> mm</small></strong></label></div></div>
-            <div className="property-section"><div className="property-heading"><span>위치 조정</span><small>100mm 단위</small></div><div className="nudge-pad"><button disabled={selected.fixed} onClick={() => nudge(0,-.1)}><ChevronUp /></button><div><button disabled={selected.fixed} onClick={() => nudge(-.1,0)}><ChevronLeft /></button><span>{selected.fixed ? "고정" : "이동"}</span><button disabled={selected.fixed} onClick={() => nudge(.1,0)}><ChevronRight /></button></div><button disabled={selected.fixed} onClick={() => nudge(0,.1)}><ChevronDown /></button></div><div className="edit-actions"><button disabled={selected.fixed} className="rotate-button" onClick={() => updateSelected({rotation:selected.rotation + Math.PI/2})}><RotateCw size={16} /> 90° 회전</button><button disabled={selected.fixed} className="delete-button" onClick={deleteSelected} aria-label="선택 제품 삭제"><Trash2 size={15} /></button></div></div>
+            <div className="property-section"><div className="property-heading"><span>위치 조정</span><small>드래그 · 100mm 단위</small></div><div className="nudge-pad"><button disabled={selected.fixed} onClick={() => nudge(0,-.1)}><ChevronUp /></button><div><button disabled={selected.fixed} onClick={() => nudge(-.1,0)}><ChevronLeft /></button><span>{selected.fixed ? "고정" : "이동"}</span><button disabled={selected.fixed} onClick={() => nudge(.1,0)}><ChevronRight /></button></div><button disabled={selected.fixed} onClick={() => nudge(0,.1)}><ChevronDown /></button></div><div className="edit-actions"><button disabled={selected.fixed} className="rotate-button" onClick={rotateSelected}><RotateCw size={16} /> 90° 회전 · R</button><button disabled={selected.fixed} className="delete-button" onClick={deleteSelected} aria-label="선택 제품 삭제"><Trash2 size={15} /></button></div><div className="transform-readout"><span>X {selected.position[0].toFixed(2)}m</span><span>Z {selected.position[2].toFixed(2)}m</span><span>{Math.round(THREE.MathUtils.radToDeg(selected.rotation) % 360)}°</span></div></div>
             <div className="property-section"><div className="property-heading"><span>배치 상태</span></div><div className={`placement-ok ${selectedIssue ? "invalid" : ""}`}><span>{selectedIssue ? "!" : "✓"}</span><div><strong>{selectedIssue ?? "배치 가능한 위치"}</strong><small>{selectedIssue ? "이동하거나 90° 회전해 간격을 확보하세요" : "도면 안에서 다른 제품과 겹치지 않아요"}</small></div></div></div>
             <div className="property-section surface"><div className="property-heading"><span>소재</span></div><div className="material-chip"><span style={{background:selected.color}} /><div><strong>기존 제품 마감</strong><small>보유 가구 · 변경 없음</small></div></div></div>
           </> : <div className="empty-selection"><div><Move3D size={24} /></div><h2>가구를 선택해보세요</h2><p>크기와 위치를 확인하고<br/>정확하게 배치할 수 있어요.</p></div>}
